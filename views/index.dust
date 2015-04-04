@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{title}</title>
+</head>
+<body>
+<div class="application_wrapper">
+
+    <div class="application_routeHandler">
+        <div class="create_account_screen">
+            <div class="create_account_form">
+                <h1>Create account</h1>
+
+                <p>Example of form validation built with React.</p>
+                <div id="formcontainer">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/externals/react-with-addons.js"></script>
+<script type="text/javascript" src="/externals/lodash.js"></script>
+<script type="text/javascript" src="/build/client.js"></script>
+</body>
+</html>

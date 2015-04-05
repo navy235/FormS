@@ -11,8 +11,8 @@ var formfields=[{
     label:'Name',
     validateRules:{
         required:true
-    }
 
+    }
 }]
 React.render(
 

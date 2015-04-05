@@ -41,6 +41,7 @@ Validator.prototype = {
             valid: condition ? !_.isEmpty(value) : true,
             errorMessage: this.getTemplateMessage(key)
         }
+
     },
     email: function (value, condition) {
         var key = 'email';

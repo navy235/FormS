@@ -10,7 +10,6 @@ var cx = React.addons.classSet;
 
 var FormValidator = React.createClass({
 
-
     getInitialState: function () {
         return {
             valid: this.props.valid,
@@ -24,7 +23,6 @@ var FormValidator = React.createClass({
             'visible': this.props.showValidator,
             'invisible': !this.props.showValidator
         });
-
         var validatorTitle;
 
         if (this.props.valid) {

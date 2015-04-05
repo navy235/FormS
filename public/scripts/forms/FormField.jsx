@@ -54,16 +54,17 @@ var FormField = React.createClass({
     },
     isValid: function () {
         if (this.props.validateRules) {
-            var result = this.checkRules(this.state.value);
-            var valid = _.every(_.map(result, function (item) {
-                return item.valid;
-            }), Boolean);
-            this.setState({
-                validateStatus: result,
-                valid: valid,
-                initial:false
-            });
-            return valid;
+            this.checkRules(this.state.value,function(result){
+                var valid = _.every(_.map(result, function (item) {
+                    return item.valid;
+                }), Boolean);
+                this.setState({
+                    validateStatus: result,
+                    valid: valid,
+                    initial:false
+                });
+                return valid;
+            }.bind(this));
         }
         return true;
     },

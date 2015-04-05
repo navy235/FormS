@@ -7,7 +7,8 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/',function(req, res, next){
-    var email=req.params.email;
+    var email=req.body.email;
+    console.log(email);
     if(email=='123@qq.com'){
         res.send(false);
     }else{

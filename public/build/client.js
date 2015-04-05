@@ -115,6 +115,8 @@
 	            url: this.props.url,
 	            submiting: false
 	        }
+
+
 	    },
 	    onSubmit: function (e) {
 	        e.preventDefault();
@@ -467,16 +469,17 @@
 	    },
 	    isValid: function () {
 	        if (this.props.validateRules) {
-	            var result = this.checkRules(this.state.value);
-	            var valid = _.every(_.map(result, function (item) {
-	                return item.valid;
-	            }), Boolean);
-	            this.setState({
-	                validateStatus: result,
-	                valid: valid,
-	                initial:false
-	            });
-	            return valid;
+	            this.checkRules(this.state.value,function(result){
+	                var valid = _.every(_.map(result, function (item) {
+	                    return item.valid;
+	                }), Boolean);
+	                this.setState({
+	                    validateStatus: result,
+	                    valid: valid,
+	                    initial:false
+	                });
+	                return valid;
+	            }.bind(this));
 	        }
 	        return true;
 	    },
@@ -565,26 +568,43 @@
 
 	Validator.prototype = {
 
-	    messageTemplate: {
-	        required: 'The {0} is Required',
-	        email: 'The {0} is a valid email address'
+	    rulesSetting: {
+	        required: {
+	            message: 'The {0} is Required'
+	        },
+	        email: {
+	            message: 'The {0} is a valid email address'
+	        },
+	        remote: {
+	            async: true
+	        }
 	    },
-	    validate: function (value) {
+	    isAsyncValidate: function (rule) {
+	        return this.rulesSetting[rule].async;
+	    },
+	    validate: function (value, callback) {
 	        var self = this;
-	        var runner=[];
+	        var runner = [];
 
 	        _.each(self.rules, function (condition, rule) {
-	            function asyncValidate(condition,rule){
-	                var d=$.Deferred();
+	            function asyncValidate(condition, rule) {
+	                var d = $.Deferred();
 	                self[rule](value, condition);
 	                d.resolve(true);
 	                return d.promise();
 	            }
-	            runner.push(asyncValidate(condition,rule))
+
+	            if (self.isAsyncValidate(rule)) {
+	                runner.push(self[rule](value, condition))
+	            } else {
+	                runner.push(asyncValidate(condition, rule))
+	            }
+
 	        })
-	        $.when(runner).then(function () {
-	            return self.result;
+	        $.when.apply($, runner).then(function (data) {
+	            callback(self.result);
 	        })
+
 	    },
 	    required: function (value, condition) {
 	        var key = 'required';
@@ -592,6 +612,7 @@
 	            valid: condition ? !_.isEmpty(value) : true,
 	            errorMessage: this.getTemplateMessage(key)
 	        }
+
 	    },
 	    email: function (value, condition) {
 	        var key = 'email';
@@ -602,23 +623,37 @@
 	    },
 	    remote: function (value, condition) {
 	        var self = this;
+	        var d = $.Deferred();
 	        var key = 'remote';
 	        var data = {};
 	        data[self.name] = value;
+	        var othervalid = _.every(_.map(self.result, function (item, name) {
+	            if (name == key) {
+	                return true;
+	            } else {
+	                return item.valid;
+	            }
+	        }), Boolean);
 	        self.result[key] = {
-	            valid:false,
+	            valid: false,
 	            errorMessage: 'remote checking'
 	        };
-	        $.post(condition.url, data, function (res) {
-	            self.result[key] = {
-	                valid: res,
-	                errorMessage: self.getTemplateMessage(key, condition.message)
-	            }
-	        })
+	        if (othervalid) {
+	            $.post(condition.url, data, function (res) {
+	                self.result[key] = {
+	                    valid: res,
+	                    errorMessage: self.getTemplateMessage(key, condition.message)
+	                }
+	                d.resolve(res);
+	            });
+	        }else{
+	            d.resolve(false);
+	        }
+	        return d.promise();
 	    },
 	    getTemplateMessage: function (key, message) {
 	        var words = [].concat(this.displayName);
-	        var templateStr = message || this.messageTemplate[key];
+	        var templateStr = message || this.rulesSetting[key].message;
 	        var result = templateStr.replace(/\{(\d+)\}/g, function (match, token) {
 	            return words[token];
 	        });
@@ -640,8 +675,8 @@
 	            this.id
 	        )
 	    },
-	    checkRules: function (value) {
-	        this.validator.validate(value);
+	    checkRules: function (value, callback) {
+	        this.validator.validate(value, callback);
 	    },
 
 	}
@@ -662,7 +697,6 @@
 	var cx = React.addons.classSet;
 
 	var FormValidator = React.createClass({displayName: "FormValidator",
-
 	    getInitialState: function () {
 	        return {
 	            valid: this.props.valid,
@@ -670,13 +704,11 @@
 	        };
 	    },
 	    render: function () {
-
 	        var validatorClass = cx({
 	            'password_validator': true,
 	            'visible': this.props.showValidator,
 	            'invisible': !this.props.showValidator
 	        });
-
 	        var validatorTitle;
 
 	        if (this.props.valid) {

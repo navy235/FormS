@@ -9,8 +9,6 @@ var Icon = require('../components/Icon');
 var cx = React.addons.classSet;
 
 var FormValidator = React.createClass({
-
-
     getInitialState: function () {
         return {
             valid: this.props.valid,
@@ -18,7 +16,6 @@ var FormValidator = React.createClass({
         };
     },
     render: function () {
-
         var validatorClass = cx({
             'password_validator': true,
             'visible': this.props.showValidator,

@@ -19,7 +19,8 @@ var config={
 
     externals:{
         'react/addons':'React',
-        lodash:'_'
+        lodash:'_',
+        jquery:'jQuery'
     },
     module: {
         loaders: [

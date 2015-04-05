@@ -122,12 +122,20 @@
       path {
         fill: @red;
       }
-    }   
+    }
 
     &.input_valid_icon {
       z-index: @layer1;
       path {
         fill: @green;
+      }
+    }
+  }
+
+  .validationIcons{
+    &.invisible{
+      i{
+        display: none;
       }
     }
   }
@@ -139,7 +147,7 @@
           opacity: 1
         }
       }
-    }  
+    }
   }
 
   &.input_valid {
@@ -159,8 +167,8 @@
           svg {
             opacity: 1
           }
-        }  
+        }
       }
     }
-  } 
+  }
 }

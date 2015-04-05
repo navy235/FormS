@@ -6,4 +6,13 @@ router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
 
+router.post('/',function(req, res, next){
+    var email=req.params.email;
+    if(email=='123@qq.com'){
+        res.send(false);
+    }else{
+        res.send(true);
+    }
+})
+
 module.exports = router;

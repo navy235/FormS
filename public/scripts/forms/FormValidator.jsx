@@ -11,12 +11,8 @@ var cx = React.addons.classSet;
 var FormValidator = React.createClass({
 
     getInitialState: function () {
-
-        var valid = this.props.validateStatus ? _.every(_.map(this.props.validateStatus, function (item) {
-            return item.valid;
-        }), Boolean) : false;
         return {
-            valid: valid,
+            valid: this.props.valid,
             showValidator: this.props.showValidator
         };
     },
@@ -24,8 +20,8 @@ var FormValidator = React.createClass({
 
         var validatorClass = cx({
             'password_validator': true,
-            'visible': this.state.showValidator,
-            'invisible': !this.state.showValidator
+            'visible': this.props.showValidator,
+            'invisible': !this.props.showValidator
         });
 
         var validatorTitle;
@@ -55,20 +51,16 @@ var FormValidator = React.createClass({
                 errorMessage: item.errorMessage
             });
         });
-
-
         return (
-
             <div className="validate">
-                <ValidStatus name={this.props.name} visible={!this.state.showValidator&&!this.state.valid} />
-
+                <ValidStatus name={this.props.name} visible={!this.props.initial && !this.props.showValidator && !this.props.valid} />
                 <div className={validatorClass}>
                     <div className="validator_container">
                         {validatorTitle}
                         <ul className="rules_list">
                             {messages.map(function (item) {
                                 return <ValidateItem itemClass={item.itemClass} errorClass={item.errorClass}
-                                                     errorMessage={item.errorMessage}/>
+                                    errorMessage={item.errorMessage}/>
                             })}
                         </ul>
                     </div>
@@ -84,8 +76,12 @@ var ValidateItem = React.createClass({
     render: function () {
         return (
             <li className={this.props.itemClass}>
-                <i className="icon_valid"> <Icon type="circle_tick_filled"/> </i>
-                <i className="icon_invalid"> <Icon type="circle_error"/> </i>
+                <i className="icon_valid">
+                    <Icon type="circle_tick_filled"/>
+                </i>
+                <i className="icon_invalid">
+                    <Icon type="circle_error"/>
+                </i>
                 <span className={this.props.errorClass}>{this.props.errorMessage}</span>
             </li>
         )
@@ -97,7 +93,7 @@ var ValidStatus = React.createClass({
 
     getInitialState: function () {
         return {
-            message: this.props.name + 'is invalid'
+            message: this.props.name + ' is invalid'
         };
     },
 
@@ -108,9 +104,25 @@ var ValidStatus = React.createClass({
             'invisible': !this.props.visible
         });
 
+        var errorIconClass=cx({
+            'validationIcons':true,
+            'visible': this.props.visible,
+            'invisible': !this.props.visible
+        })
+
         return (
-            <div className={errorClass}>
-                <span>{this.props.errorMessage}</span>
+            <div>
+                <div className={errorClass}>
+                    <span>{this.state.message}</span>
+                </div>
+                <div className={errorIconClass}>
+                    <i className="input_error_icon">
+                        <Icon type="circle_error"/>
+                    </i>
+                    <i className="input_valid_icon">
+                        <Icon type="circle_tick"/>
+                    </i>
+                </div>
             </div>
         )
     }

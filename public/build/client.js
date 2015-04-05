@@ -50,23 +50,44 @@
 	var React = __webpack_require__(1);
 	var Form = __webpack_require__(2);
 	__webpack_require__(4);
-	var formfields=[{
-	    id:'name',
-	    type:'text',
+	var formfields = [
+	    {
+	        id: 'email',
+	        type: 'email',
+	        label: 'Email Address',
+	        validateRules: {
+	            required: true,
+	            email:true,
+	            remote:{
+	                url:'users',
+	                minLength:6,
+	                message:'This {0} is registered,please try another one!'
+	            }
+	        }
+	    },
+	    {
+	        id: 'name',
+	        type: 'text',
+	        label: 'Name',
+	        validateRules: {
+	            required: true
+	        }
+	    },
+	    {
+	        id: 'password',
+	        type: 'password',
+	        label: 'Password',
+	        validateRules: {
+	            required: true
+	        }
 
-	    label:'Name',
-	    validateRules:{
-	        required:true
-	    }
-
-	}]
+	    }]
 	React.render(
-
 	    React.createElement("div", {className: "container"}, 
 	        React.createElement(Form, {formfields: formfields, 
-	              url: "url"})
+	            url: "url"})
 	    )
-	        , document.getElementById('formcontainer'));
+	    , document.getElementById('formcontainer'));
 
 
 /***/ },
@@ -84,37 +105,61 @@
 	 */
 	var React = __webpack_require__(1);
 	var _ = __webpack_require__(3);
-	var FormField=__webpack_require__(7);
+	var FormField = __webpack_require__(7);
 
-	var Form=React.createClass({displayName: "Form",
+	var Form = React.createClass({displayName: "Form",
 
-	    getInitialState:function(){
+	    getInitialState: function () {
 	        return {
-	            formfields:this.props.formfields,
-	            url:this.props.url,
-	            submiting:false
+	            formfields: this.props.formfields,
+	            url: this.props.url,
+	            submiting: false
 	        }
 	    },
-	    onSubmit:function(e){
-	      e.preventDefault();
+	    onSubmit: function (e) {
+	        e.preventDefault();
+	        var valid=this.isValid();
+	        var data=this.getData();
+	        if (valid) {
+	            console.log(data);
+	            this.reset();
+	        }
 	    },
-	    render:function(){
-	        var fields=[];
-	        this.state.formfields.map(function(field){
-
-
+	    reset: function () {
+	        var self = this;
+	        _.each(this.state.formfields, function (field) {
+	            self.refs[field.id].reset();
 	        })
+	    },
+	    isValid: function () {
+	        var self = this;
+	        var valid = _.every(_.map(this.state.formfields, function (field) {
+	            return self.refs[field.id].isValid();
+	        }), Boolean);
+	        return valid;
+	    },
+	    getData: function () {
+	        var self = this;
+	        var data = {};
+	        _.map(this.state.formfields, function (field) {
+	            data[field.id] = self.refs[field.id].getValue();
+	        });
+	        return data;
+	    },
+	    render: function () {
+	        var fields = [];
 	        return (
 	            React.createElement("form", {url: this.props.url, onSubmit: this.onSubmit}, 
-	                this.state.formfields.map(function(field,i){
-
-	                    return React.createElement(FormField, {type: field.type, 
-	                                      id: field.id, 
-	                                      placeholder: field.placeholder, 
-	                                      label: field.label, 
-	                                      validateRules: field.validateRules, 
-	                                      key: i}
-	                        )
+	                this.state.formfields.map(function (field, i) {
+	                    return React.createElement(FormField, {
+	                        type: field.type, 
+	                        id: field.id, 
+	                        placeholder: field.placeholder, 
+	                        label: field.label, 
+	                        ref: field.id, 
+	                        validateRules: field.validateRules, 
+	                        key: i}
+	                    )
 	                }), 
 
 	                React.createElement("button", {
@@ -128,7 +173,7 @@
 
 	    }
 	})
-	module.exports=Form;
+	module.exports = Form;
 
 /***/ },
 /* 3 */
@@ -150,8 +195,8 @@
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
-		module.hot.accept("!!/Users/navy/WorkSpace/Resouce/FormS/node_modules/css-loader/index.js!/Users/navy/WorkSpace/Resouce/FormS/node_modules/less-loader/index.js!/Users/navy/WorkSpace/Resouce/FormS/public/styles/application.less", function() {
-			var newContent = require("!!/Users/navy/WorkSpace/Resouce/FormS/node_modules/css-loader/index.js!/Users/navy/WorkSpace/Resouce/FormS/node_modules/less-loader/index.js!/Users/navy/WorkSpace/Resouce/FormS/public/styles/application.less");
+		module.hot.accept("!!e:\\WorkSpace\\Study\\FormS\\node_modules\\css-loader\\index.js!e:\\WorkSpace\\Study\\FormS\\node_modules\\less-loader\\index.js!e:\\WorkSpace\\Study\\FormS\\public\\styles\\application.less", function() {
+			var newContent = require("!!e:\\WorkSpace\\Study\\FormS\\node_modules\\css-loader\\index.js!e:\\WorkSpace\\Study\\FormS\\node_modules\\less-loader\\index.js!e:\\WorkSpace\\Study\\FormS\\public\\styles\\application.less");
 			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 			update(newContent);
 		});
@@ -163,8 +208,8 @@
 /* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(29)();
-	exports.push([module.id, "html {\n  color: #000;\n  background: #FFF;\n  overflow-y: scroll;\n  font-size: 100%;\n  -webkit-text-size-adjust: 100%;\n  -ms-text-size-adjust: 100%;\n  font-family: sans-serif;\n}\nhtml,\nbody {\n  height: 100%;\n  min-height: 100%;\n}\na {\n  background: transparent;\n}\na,\na:active,\na:hover {\n  outline: 0;\n}\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nnav,\nsection,\nbody,\ndiv,\ndl,\ndt,\ndd,\nul,\nol,\nli,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\npre,\ncode,\nform,\nfieldset,\nlegend,\ninput,\ntextarea,\np,\nblockquote,\nth,\ntd {\n  margin: 0;\n  padding: 0;\n}\ntable {\n  border-collapse: collapse;\n  border-spacing: 0;\n}\nfieldset,\nimg {\n  border: 0;\n}\naddress,\ncaption,\ncite,\ncode,\ndfn,\nem,\nstrong,\nth,\nvar {\n  font-style: normal;\n  font-weight: normal;\n}\nol,\nul {\n  list-style: none;\n}\ncaption,\nth {\n  text-align: left;\n}\nh1,\nh2,\nh3,\nh4,\nh5,\nh6 {\n  font-size: 100%;\n  font-weight: normal;\n}\nq:before,\nq:after {\n  content: '';\n}\nabbr,\nacronym {\n  border: 0;\n  font-variant: normal;\n}\n/* to preserve line-height and selector appearance */\nsup {\n  vertical-align: text-top;\n}\nsub {\n  vertical-align: text-bottom;\n}\ninput,\ntextarea,\nselect {\n  font-family: inherit;\n  font-size: inherit;\n  font-weight: inherit;\n  *font-size: 100%;\n  /*to enable resizing for IE*/\n}\nlegend {\n  color: #000;\n}\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nnav,\nsection {\n  display: block;\n}\naudio,\ncanvas,\nvideo {\n  display: inline-block;\n  *display: inline;\n  *zoom: 1;\n}\naudio:not([controls]) {\n  display: none;\n}\nsub,\nsup {\n  position: relative;\n  font-size: 75%;\n  line-height: 0;\n  vertical-align: baseline;\n}\nsup {\n  top: -0.5em;\n}\nsub {\n  bottom: -0.25em;\n}\nsvg:not(:root) {\n  overflow: hidden;\n}\nbutton,\ninput,\nselect,\ntextarea {\n  margin: 0;\n  font-size: 100%;\n  vertical-align: middle;\n}\nbutton,\ninput {\n  *overflow: visible;\n  line-height: normal;\n}\nbutton::-moz-focus-inner,\ninput::-moz-focus-inner {\n  padding: 0;\n  border: 0;\n}\nbutton,\ninput[type=\"button\"],\ninput[type=\"reset\"],\ninput[type=\"submit\"] {\n  cursor: pointer;\n  -webkit-appearance: button;\n}\ninput[type=\"search\"] {\n  -webkit-box-sizing: content-box;\n  -moz-box-sizing: content-box;\n  box-sizing: content-box;\n  -webkit-appearance: textfield;\n}\ninput[type=\"search\"]::-webkit-search-decoration,\ninput[type=\"search\"]::-webkit-search-cancel-button {\n  -webkit-appearance: none;\n}\ntextarea {\n  overflow: auto;\n  vertical-align: top;\n}\ncode,\nkbd,\npre,\nsamp {\n  font-family: monospace, monospace;\n  font-size: 1em;\n}\npre {\n  overflow: auto;\n}\nhr {\n  -moz-box-sizing: content-box;\n  box-sizing: content-box;\n  height: 0;\n}\ntable {\n  border-collapse: collapse;\n  border-spacing: 0;\n}\ntd,\nth {\n  padding: 0;\n}\nsvg {\n  display: block;\n}\n.hidden {\n  display: none !important;\n  visibility: hidden !important;\n  opacity: 0;\n}\n::selection {\n  background: #40b4de;\n  color: #fff;\n}\n::-moz-selection {\n  background: #40b4de;\n  color: #fff;\n}\n* {\n  outline: none;\n  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n  -webkit-tap-highlight-color: transparent;\n}\na {\n  color: #40b4de;\n  text-decoration: none;\n  -webkit-transition: color 0.3s ease-in-out;\n  -moz-transition: color 0.3s ease-in-out;\n  -ms-transition: color 0.3s ease-in-out;\n  -o-transition: color 0.3s ease-in-out;\n  transition: color 0.3s ease-in-out;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  -o-user-select: none;\n  user-select: none;\n}\na:hover {\n  color: #1b7a9d;\n  text-decoration: none;\n}\na:active {\n  color: #97d6ed;\n}\na:focus {\n  outline: none;\n}\np {\n  font-size: 14px;\n  line-height: 1.6;\n  margin: 0 0 11px;\n}\ntable {\n  width: 100%;\n}\ntable thead,\ntable tr,\ntable th,\ntable td {\n  vertical-align: middle;\n}\ntable td {\n  padding-right: 20px;\n}\n.input_group {\n  display: block;\n  position: relative;\n  width: 100%;\n  min-height: 70px;\n  margin-bottom: 10px;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .input_group {\n    min-height: 64px;\n    margin-bottom: 0;\n  }\n}\n.input_group label.input_label {\n  display: -webkit-flex;\n  display: -moz-flex;\n  display: -ms-flexbox;\n  display: -ms-flex;\n  display: flex;\n  -webkit-align-items: center;\n  -moz-align-items: center;\n  -ms-align-items: center;\n  align-items: center;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  -o-user-select: none;\n  user-select: none;\n  -webkit-box-sizing: border-box;\n  -khtml-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  position: absolute;\n  z-index: 10;\n  cursor: text;\n  padding: 0 0 0 15px;\n}\n.input_group label.input_label .label_text {\n  font-size: 18px;\n  font-weight: 100;\n  letter-spacing: .7px;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .input_group label.input_label .label_text {\n    font-size: 16px;\n    font-weight: 300;\n  }\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .input_group label.input_label {\n    height: 64px;\n  }\n}\n.input_group.input_empty.input_unfocused {\n  color: #c1c5cc;\n}\n.input_group.input_focused label.input_label,\n.input_group.input_hasValue label.input_label {\n  height: 46px;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .input_group.input_focused label.input_label,\n  .input_group.input_hasValue label.input_label {\n    height: 40px;\n  }\n}\n.input_group.input_focused label.input_label .label_text,\n.input_group.input_hasValue label.input_label .label_text {\n  color: #b8bdc4;\n  letter-spacing: .7px;\n  font-size: 11px;\n}\n.input_group.input_unfocused.input_hasValue.input_valid label.input_label {\n  color: #b1b0b1;\n}\n.input_group input.input {\n  display: block;\n  position: relative;\n  -webkit-box-shadow: none;\n  -moz-box-shadow: none;\n  box-shadow: none;\n  width: 100%;\n  -webkit-box-sizing: border-box;\n  -khtml-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  -webkit-transition: all 0.7s ease-in-out;\n  -moz-transition: all 0.7s ease-in-out;\n  -ms-transition: all 0.7s ease-in-out;\n  -o-transition: all 0.7s ease-in-out;\n  transition: all 0.7s ease-in-out;\n  z-index: 1;\n  -webkit-appearance: none;\n  border: none;\n  outline: none;\n  padding: 18px 15px 0 15px;\n  margin: 0 auto 13px auto;\n  color: #363b4a;\n  letter-spacing: .7px;\n  font-family: 'Roboto', sans-serif;\n  font-weight: 300;\n  font-size: 16px;\n  height: 70px;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .input_group input.input {\n    font-size: 14px;\n    padding: 15px 15px 0 15px;\n    height: 64px;\n  }\n}\n.input_group input.input:-webkit-autofill {\n  -webkit-box-shadow: 0 0 0px 1000px white inset;\n  color: #cacaca;\n}\n.input_group i {\n  top: 0;\n  right: 15px;\n  display: -webkit-flex;\n  display: -moz-flex;\n  display: -ms-flexbox;\n  display: -ms-flex;\n  display: flex;\n  -webkit-flex-direction: row;\n  -moz-flex-direction: row;\n  -ms-flex-direction: row;\n  flex-direction: row;\n  -webkit-align-items: center;\n  -moz-align-items: center;\n  -ms-align-items: center;\n  align-items: center;\n  width: 20px;\n  height: 70px;\n  z-index: 1000;\n  position: absolute;\n  z-index: 100;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .input_group i {\n    height: 64px;\n  }\n}\n.input_group i svg {\n  opacity: 0;\n  -webkit-transition: all 0.2s ease-in-out;\n  -moz-transition: all 0.2s ease-in-out;\n  -ms-transition: all 0.2s ease-in-out;\n  -o-transition: all 0.2s ease-in-out;\n  transition: all 0.2s ease-in-out;\n  width: 20px;\n  height: 20px;\n}\n.input_group i.input_error_icon {\n  z-index: 10;\n}\n.input_group i.input_error_icon path {\n  fill: #f16767;\n}\n.input_group i.input_valid_icon {\n  z-index: 1;\n}\n.input_group i.input_valid_icon path {\n  fill: #50b87f;\n}\n.input_group.input_error i.input_error_icon svg {\n  opacity: 1;\n}\n.input_group.input_valid i.input_error_icon {\n  z-index: 1;\n}\n.input_group.input_valid i.input_valid_icon {\n  z-index: 10;\n}\n.input_group.input_valid.input_hasValue i.input_valid_icon svg {\n  opacity: 1;\n}\n.error_container {\n  position: absolute;\n  opacity: 0;\n  top: 0;\n  left: 100%;\n  white-space: nowrap;\n  line-height: 70px;\n  width: auto;\n  height: 70px;\n  background: #f16767;\n  -webkit-box-sizing: border-box;\n  -khtml-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  padding: 0 20px 0 20px;\n  color: white;\n  font-size: 14px;\n  font-weight: 100;\n  letter-spacing: .6px;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  -o-user-select: none;\n  user-select: none;\n  -webkit-transition: all 0.2s ease-in-out;\n  -moz-transition: all 0.2s ease-in-out;\n  -ms-transition: all 0.2s ease-in-out;\n  -o-transition: all 0.2s ease-in-out;\n  transition: all 0.2s ease-in-out;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .error_container {\n    position: relative;\n    top: -13px;\n    left: 0;\n    line-height: 30px;\n    font-size: 12px;\n    padding: 0 15px 0 15px;\n    font-weight: 300;\n  }\n}\n.error_container.visible {\n  -o-transform: translateX(0px);\n  -webkit-transform: translateX(0px);\n  -moz-transform: translateX(0px);\n  -ms-transform: translateX(0px);\n  transform: translateX(0px);\n  opacity: 1;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .error_container.visible {\n    height: 30px;\n  }\n}\n.error_container.invisible {\n  -o-transform: translateX(-30px);\n  -webkit-transform: translateX(-30px);\n  -moz-transform: translateX(-30px);\n  -ms-transform: translateX(-30px);\n  transform: translateX(-30px);\n  opacity: 0;\n  -webkit-animation-delay: 2s;\n  /* Chrome, Safari, Opera */\n  animation-delay: 2s;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .error_container.invisible {\n    height: 0;\n    line-height: 0;\n    -o-transform: translateX(0px);\n    -webkit-transform: translateX(0px);\n    -moz-transform: translateX(0px);\n    -ms-transform: translateX(0px);\n    transform: translateX(0px);\n  }\n}\n.password_validator {\n  top: 0;\n  left: 105%;\n  position: absolute;\n  display: block;\n  opacity: 0;\n  width: 320px;\n  height: auto;\n  -webkit-box-sizing: border-box;\n  -khtml-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  -o-user-select: none;\n  user-select: none;\n  -webkit-transition: all 0.2s ease-in-out;\n  -moz-transition: all 0.2s ease-in-out;\n  -ms-transition: all 0.2s ease-in-out;\n  -o-transition: all 0.2s ease-in-out;\n  transition: all 0.2s ease-in-out;\n  opacity: 1;\n  z-index: 100;\n}\n.password_validator:after {\n  display: block;\n  position: absolute;\n  top: 30px;\n  left: -10px;\n  content: '';\n  border-top: 10px solid transparent;\n  border-bottom: 10px solid transparent;\n  border-right: 10px solid #e4e7e8;\n}\n.password_validator .validator_container {\n  display: block;\n  position: relative;\n  -webkit-box-sizing: border-box;\n  -khtml-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  -webkit-border-radius: 4px;\n  -moz-border-radius: 4px;\n  border-radius: 4px;\n  background: #e4e7e8;\n  padding: 10px 0px 10px 20px;\n}\n.password_validator .validator_container h4.validator_title {\n  display: block;\n  position: relative;\n  -webkit-transition: all 0.2s ease-in-out;\n  -moz-transition: all 0.2s ease-in-out;\n  -ms-transition: all 0.2s ease-in-out;\n  -o-transition: all 0.2s ease-in-out;\n  transition: all 0.2s ease-in-out;\n  margin: 12px 0 5px 0;\n  font-size: 12px;\n  font-weight: 500;\n  text-transform: uppercase;\n  color: #363b4a;\n  opacity: .25;\n  letter-spacing: 1.5px;\n}\n.password_validator .validator_container h4.validator_title.valid {\n  color: #50b87f;\n  opacity: 1;\n}\n.password_validator .validator_container ul.rules_list {\n  display: block;\n  position: relative;\n  margin: 0;\n  padding: 0;\n}\n.password_validator .validator_container ul.rules_list > li {\n  display: block;\n  position: relative;\n  margin: 12px 0 12px 0;\n  font-size: 12px;\n  letter-spacing: .3px;\n  font-weight: 200;\n  color: #363b4a;\n}\n.password_validator .validator_container ul.rules_list > li .bad_word {\n  font-style: italic;\n  padding: 0 5px 0 0;\n}\n.password_validator .validator_container ul.rules_list > li .bad_word:after {\n  content: ',';\n  display: inline;\n}\n.password_validator .validator_container ul.rules_list > li .bad_word:last-child {\n  padding: 0;\n}\n.password_validator .validator_container ul.rules_list > li .bad_word:last-child:after {\n  display: none;\n}\n.password_validator .validator_container ul.rules_list > li .icon_invalid {\n  display: block;\n  position: absolute;\n  top: 1px;\n  left: 0;\n  -webkit-transform: scale(1);\n  -moz-transform: scale(1);\n  -ms-transform: scale(1);\n  -o-transform: scale(1);\n  transform: scale(1);\n  opacity: 1;\n  width: 18px;\n  height: 18px;\n  -webkit-transition: all 0.2s ease-in-out;\n  -moz-transition: all 0.2s ease-in-out;\n  -ms-transition: all 0.2s ease-in-out;\n  -o-transition: all 0.2s ease-in-out;\n  transition: all 0.2s ease-in-out;\n}\n.password_validator .validator_container ul.rules_list > li .icon_invalid svg {\n  opacity: 1;\n  width: 18px;\n  height: 18px;\n}\n.password_validator .validator_container ul.rules_list > li .icon_invalid svg path {\n  fill: #f16767;\n}\n.password_validator .validator_container ul.rules_list > li .icon_valid {\n  position: absolute;\n  top: 1px;\n  left: 0;\n  -webkit-transform: scale(0);\n  -moz-transform: scale(0);\n  -ms-transform: scale(0);\n  -o-transform: scale(0);\n  transform: scale(0);\n  opacity: 0;\n  width: 19px;\n  height: 19px;\n  -webkit-transition: all 0.2s ease-in-out;\n  -moz-transition: all 0.2s ease-in-out;\n  -ms-transition: all 0.2s ease-in-out;\n  -o-transition: all 0.2s ease-in-out;\n  transition: all 0.2s ease-in-out;\n}\n.password_validator .validator_container ul.rules_list > li .icon_valid svg {\n  opacity: 1;\n  width: 19px;\n  height: 19px;\n}\n.password_validator .validator_container ul.rules_list > li .error_message {\n  display: block;\n  position: relative;\n  -webkit-transition: all 0.2s ease-in-out;\n  -moz-transition: all 0.2s ease-in-out;\n  -ms-transition: all 0.2s ease-in-out;\n  -o-transition: all 0.2s ease-in-out;\n  transition: all 0.2s ease-in-out;\n  padding: 0 0 0 27px;\n  opacity: .9;\n}\n.password_validator .validator_container ul.rules_list > li.valid .icon_invalid {\n  -webkit-transform: scale(0);\n  -moz-transform: scale(0);\n  -ms-transform: scale(0);\n  -o-transform: scale(0);\n  transform: scale(0);\n  opacity: 0;\n}\n.password_validator .validator_container ul.rules_list > li.valid .icon_valid {\n  -webkit-transform: scale(1);\n  -moz-transform: scale(1);\n  -ms-transform: scale(1);\n  -o-transform: scale(1);\n  transform: scale(1);\n  opacity: 1;\n}\n.password_validator .validator_container ul.rules_list > li.valid .error_message {\n  opacity: .3;\n}\n.password_validator.visible {\n  -o-transform: translateX(0px);\n  -webkit-transform: translateX(0px);\n  -moz-transform: translateX(0px);\n  -ms-transform: translateX(0px);\n  transform: translateX(0px);\n  opacity: 1;\n}\n.password_validator.invisible {\n  -o-transform: translateX(-15px);\n  -webkit-transform: translateX(-15px);\n  -moz-transform: translateX(-15px);\n  -ms-transform: translateX(-15px);\n  transform: translateX(-15px);\n  opacity: 0;\n  -webkit-animation-delay: 2s;\n  /* Chrome, Safari, Opera */\n  animation-delay: 2s;\n}\n.Select {\n  position: relative;\n}\n.Select .Select-control {\n  display: block;\n  position: relative;\n  -webkit-box-shadow: none;\n  -moz-box-shadow: none;\n  box-shadow: none;\n  width: 100%;\n  height: 70px;\n  -webkit-box-sizing: border-box;\n  -khtml-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  -webkit-transition: all 0.7s ease-in-out;\n  -moz-transition: all 0.7s ease-in-out;\n  -ms-transition: all 0.7s ease-in-out;\n  -o-transition: all 0.7s ease-in-out;\n  transition: all 0.7s ease-in-out;\n  background: white;\n  z-index: 1;\n  -webkit-appearance: none;\n  border: none;\n  outline: none;\n  margin: 0 auto 13px auto;\n  color: #363b4a;\n  letter-spacing: .5px;\n  font-weight: 300;\n  font-size: 18px;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .Select .Select-control {\n    height: 64px;\n  }\n}\n.Select.is-searchable.is-open > .Select-control {\n  cursor: text;\n}\n.Select.is-open > .Select-control {\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  background: white;\n  border-color: #b3b3b3 #cccccc #d9d9d9;\n}\n.Select.is-open > .Select-control > .Select-arrow {\n  border-color: transparent transparent #999999;\n  border-width: 0 8px 8px;\n}\n.Select.is-searchable.is-focused:not(.is-open) > .Select-control {\n  cursor: text;\n}\n.Select .Select-placeholder {\n  display: block;\n  top: 20px;\n  left: 0;\n  font-size: 18px;\n  font-weight: 100;\n  letter-spacing: .7px;\n  position: absolute;\n  cursor: text;\n  padding: 0 0 0 15px;\n  color: #c1c5cc;\n  z-index: 10;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .Select .Select-placeholder {\n    font-size: 16px;\n    font-weight: 300;\n  }\n}\n.Select .Select-actual-placeholder {\n  position: absolute;\n  display: none;\n  color: #b8bdc4;\n  letter-spacing: .3px;\n  font-size: 11px;\n  top: 14px;\n  left: 15px;\n  z-index: 10;\n  font-weight: 300;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .Select .Select-actual-placeholder {\n    font-weight: 300;\n  }\n}\n.Select.is-focused .Select-placeholder {\n  opacity: 0;\n}\n.Select.has-value .Select-actual-placeholder,\n.Select.is-focused.has-value .Select-actual-placeholder {\n  display: block;\n}\n.Select.has-value .Select-placeholder,\n.Select.is-focused.has-value .Select-placeholder {\n  color: #333333;\n  opacity: 1;\n  top: 30px;\n  color: #363b4a;\n  letter-spacing: .5px;\n  font-weight: 300;\n  font-size: 16px;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .Select.has-value .Select-placeholder,\n  .Select.is-focused.has-value .Select-placeholder {\n    font-size: 14px;\n  }\n}\n.Select.is-focused .Select-placeholder {\n  opacity: 0;\n}\n.Select.is-focused .Select-actual-placeholder {\n  display: block;\n}\n.Select.is-open .Select-actual-placeholder {\n  display: block;\n}\n.Select.is-open .Select-placeholder {\n  display: none;\n}\n.Select.is-open.has-value .Select-placeholder,\n.Select.is-open.has-value.is-focused .Select-placeholder {\n  display: block;\n}\n.Select .Select-input > input {\n  display: block;\n  position: relative;\n  -webkit-box-shadow: none;\n  -moz-box-shadow: none;\n  box-shadow: none;\n  width: 410px;\n  height: 70px;\n  -webkit-border-radius: 3px;\n  -moz-border-radius: 3px;\n  border-radius: 3px;\n  -webkit-transition: all 0.7s ease-in-out;\n  -moz-transition: all 0.7s ease-in-out;\n  -ms-transition: all 0.7s ease-in-out;\n  -o-transition: all 0.7s ease-in-out;\n  transition: all 0.7s ease-in-out;\n  -webkit-box-sizing: border-box;\n  -khtml-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  z-index: 1;\n  -webkit-appearance: none;\n  border: none;\n  outline: none;\n  padding: 16px 15px 0 15px;\n  margin: 0 auto 13px auto;\n  color: #363b4a;\n  letter-spacing: .5px;\n  font-weight: 300;\n  font-size: 16px;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .Select .Select-input > input {\n    height: 64px;\n    font-size: 14px;\n  }\n}\n.is-focused .Select .Select-input > input {\n  cursor: text;\n}\n.Select .Select-control:not(.is-searchable) > .Select-input {\n  outline: none;\n}\n.Select .Select-loading {\n  -moz-animation: spin 400ms infinite linear;\n  -ms-animation: spin 400ms infinite linear;\n  -webkit-animation: spin 400ms infinite linear;\n  -o-animation: spin 400ms infinite linear;\n  animation: spin 400ms infinite linear;\n  width: 16px;\n  height: 16px;\n  box-sizing: border-box;\n  border-radius: 50%;\n  border: 2px solid #cccccc;\n  border-right-color: #333333;\n  display: inline-block;\n  position: relative;\n  margin-top: -8px;\n  position: absolute;\n  right: 30px;\n  top: 50%;\n}\n.Select .has-value > .Select-control > .Select-loading {\n  right: 46px;\n}\n.Select .Select-clear {\n  opacity: 0;\n}\n.Select .Select-arrow {\n  border-color: #999999 transparent transparent;\n  border-style: solid;\n  border-width: 8px 8px 0;\n  content: \" \";\n  display: block;\n  height: 0;\n  margin-top: -ceil(4px);\n  position: absolute;\n  right: 15px;\n  top: 32px;\n  width: 0;\n  opacity: .8;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .Select .Select-arrow {\n    top: 30px;\n  }\n}\n.Select .Select-menu {\n  border-bottom-right-radius: 4px;\n  border-bottom-left-radius: 4px;\n  background-color: white;\n  margin-top: 0px;\n  margin-left: -2px;\n  border: 2px solid #f0f4f5;\n  max-height: 210px;\n  overflow-y: auto;\n  position: absolute;\n  top: 100%;\n  width: 100%;\n  z-index: 1000;\n  -webkit-overflow-scrolling: touch;\n}\n.Select .Select-menu::-webkit-scrollbar {\n  width: 11px;\n  background-color: transparent;\n  background-clip: content-box;\n}\n.Select .Select-menu::-webkit-scrollbar-button {\n  background-color: transparent;\n}\n.Select .Select-menu::-webkit-scrollbar-corner {\n  background-color: transparent;\n}\n.Select .Select-menu::-webkit-scrollbar-thumb {\n  border: solid transparent;\n  border-width: 1px 1px 1px 2px;\n  background-color: #c5c5c5;\n  background-clip: content-box;\n}\n.Select .Select-menu::-webkit-scrollbar-thumb:hover {\n  background-color: #bfbfbf;\n}\n.Select .Select-menu::-webkit-scrollbar-track {\n  border: solid #fff;\n  border-width: 1px 1px 1px 2px;\n  background-color: #fff;\n  background-clip: content-box;\n}\n.Select .Select-menu::-webkit-scrollbar-track-piece {\n  border-left: 1px solid #ccc;\n  background-color: transparent;\n}\n.Select .Select-menu::-webkit-scrollbar:horizontal {\n  height: 12px;\n  background-color: transparent;\n  background-clip: content-box;\n}\n.Select .Select-menu::-webkit-scrollbar-track:horizontal {\n  background-color: #fff;\n  background-clip: content-box;\n}\n.Select .Select-menu::-webkit-scrollbar-track-piece:horizontal {\n  border-top: 1px solid #ccc;\n  border-left: 1px solid transparent;\n}\n.Select .Select-menu::-webkit-scrollbar-thumb:horizontal {\n  border: solid transparent;\n  border-width: 2px 1px 2px 2px;\n  background-color: #c5c5c5;\n  background-clip: content-box;\n}\n.Select .Select-menu::-webkit-scrollbar-thumb:horizontal:hover {\n  background-color: #bfbfbf;\n}\n.Select .Select-menu::-webkit-scrollbar-corner {\n  display: none;\n}\n.Select .Select-menu::-webkit-resizer {\n  display: none;\n}\n.Select .Select-menu::-webkit-scrollbar {\n  width: 16px;\n  background-color: transparent;\n  background-clip: content-box;\n  cursor: pointer;\n}\n.Select .Select-menu::-webkit-scrollbar-button {\n  background-color: transparent;\n}\n.Select .Select-menu::-webkit-scrollbar-corner {\n  background-color: transparent;\n}\n.Select .Select-menu::-webkit-scrollbar-thumb {\n  border: solid transparent;\n  border-width: 6px;\n  background-color: #c5c5c5;\n  background-clip: content-box;\n  cursor: pointer;\n}\n.Select .Select-menu::-webkit-scrollbar-thumb:hover {\n  background-color: #bfbfbf;\n}\n.Select .Select-menu::-webkit-scrollbar-track {\n  border: solid #fff;\n  border-width: 1px 1px 1px 2px;\n  background-color: #fff;\n  background-clip: content-box;\n}\n.Select .Select-menu::-webkit-scrollbar-track-piece {\n  border-left: 1px solid #f0f4f5;\n  background-color: transparent;\n}\n.Select .Select-menu::-webkit-scrollbar:horizontal {\n  height: 12px;\n  background-color: transparent;\n  background-clip: content-box;\n}\n.Select .Select-menu::-webkit-scrollbar-track:horizontal {\n  background-color: #fff;\n  background-clip: content-box;\n}\n.Select .Select-menu::-webkit-scrollbar-track-piece:horizontal {\n  border-top: 1px solid transparent;\n  border-left: 1px solid transparent;\n}\n.Select .Select-menu::-webkit-scrollbar-thumb:horizontal {\n  border: solid transparent;\n  border-width: 2px 1px 2px 2px;\n  background-color: #c5c5c5;\n  background-clip: content-box;\n}\n.Select .Select-menu::-webkit-scrollbar-thumb:horizontal:hover {\n  background-color: #bfbfbf;\n}\n.Select .Select-menu::-webkit-scrollbar-corner {\n  display: none;\n}\n.Select .Select-menu::-webkit-resizer {\n  display: none;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .Select .Select-menu {\n    top: 64px;\n  }\n}\n.Select .Select-option {\n  box-sizing: border-box;\n  color: #666666;\n  cursor: pointer;\n  display: block;\n  padding: 8px 15px;\n  font-weight: 100;\n  letter-spacing: .4px;\n}\n.Select .Select-option:last-child {\n  border-bottom-right-radius: 4px;\n  border-bottom-left-radius: 4px;\n}\n.Select .Select-option.is-focused {\n  background-color: #82d2f0;\n  color: #fff;\n}\n.Select .Select-noresults {\n  box-sizing: border-box;\n  color: #999999;\n  cursor: default;\n  display: block;\n  padding: 8px 10px;\n}\n@keyframes spin {\n  to {\n    transform: rotate(1turn);\n  }\n}\n@-webkit-keyframes spin {\n  to {\n    -webkit-transform: rotate(1turn);\n  }\n}\n.button {\n  -webkit-transition: all 0.2s ease-in-out;\n  -moz-transition: all 0.2s ease-in-out;\n  -ms-transition: all 0.2s ease-in-out;\n  -o-transition: all 0.2s ease-in-out;\n  transition: all 0.2s ease-in-out;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  -o-user-select: none;\n  user-select: none;\n  display: inline-block;\n  position: relative;\n  border: none;\n  border-radius: 3px;\n  background: #545a6a;\n  color: #ffffff;\n  font: normal normal 200 13px/40px 'Roboto', sans-serif;\n  text-transform: uppercase;\n  letter-spacing: 1.5px;\n  height: 40px;\n  padding: 0px 15px;\n  -webkit-font-smoothing: subpixel-antialiased;\n  cursor: pointer;\n  white-space: nowrap;\n}\n.button.button_wide {\n  display: block;\n  position: relative;\n  width: 100%;\n  margin: 20px 0 0 0;\n  height: 50px;\n  font-size: 13px;\n}\n.button:hover,\n.button:focus {\n  color: #ffffff;\n  background: #40b4de;\n}\n.button:active,\n.button.active {\n  -webkit-box-shadow: none;\n  -moz-box-shadow: none;\n  box-shadow: none;\n  background: #6bc5e6;\n}\nhtml {\n  width: 100%;\n  height: 100%;\n  overflow: hidden;\n}\nbody {\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  -webkit-font-smoothing: subpixel-antialiased;\n  background: #f0f4f5;\n  overflow: hidden;\n  font: normal normal 100 14px/1.6 'Roboto', sans-serif;\n  -webkit-overflow-scrolling: touch;\n  display: block;\n}\n.application_wrapper {\n  display: block;\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  z-index: 1;\n  overflow-y: scroll;\n}\n.application_wrapper::-webkit-scrollbar {\n  width: 11px;\n  background-color: transparent;\n  background-clip: content-box;\n}\n.application_wrapper::-webkit-scrollbar-button {\n  background-color: transparent;\n}\n.application_wrapper::-webkit-scrollbar-corner {\n  background-color: transparent;\n}\n.application_wrapper::-webkit-scrollbar-thumb {\n  border: solid transparent;\n  border-width: 1px 1px 1px 2px;\n  background-color: #c5c5c5;\n  background-clip: content-box;\n}\n.application_wrapper::-webkit-scrollbar-thumb:hover {\n  background-color: #bfbfbf;\n}\n.application_wrapper::-webkit-scrollbar-track {\n  border: solid #fff;\n  border-width: 1px 1px 1px 2px;\n  background-color: #fff;\n  background-clip: content-box;\n}\n.application_wrapper::-webkit-scrollbar-track-piece {\n  border-left: 1px solid #ccc;\n  background-color: transparent;\n}\n.application_wrapper::-webkit-scrollbar:horizontal {\n  height: 12px;\n  background-color: transparent;\n  background-clip: content-box;\n}\n.application_wrapper::-webkit-scrollbar-track:horizontal {\n  background-color: #fff;\n  background-clip: content-box;\n}\n.application_wrapper::-webkit-scrollbar-track-piece:horizontal {\n  border-top: 1px solid #ccc;\n  border-left: 1px solid transparent;\n}\n.application_wrapper::-webkit-scrollbar-thumb:horizontal {\n  border: solid transparent;\n  border-width: 2px 1px 2px 2px;\n  background-color: #c5c5c5;\n  background-clip: content-box;\n}\n.application_wrapper::-webkit-scrollbar-thumb:horizontal:hover {\n  background-color: #bfbfbf;\n}\n.application_wrapper::-webkit-scrollbar-corner {\n  display: none;\n}\n.application_wrapper::-webkit-resizer {\n  display: none;\n}\n.application_wrapper::-webkit-scrollbar {\n  width: 16px;\n  background-color: transparent;\n  background-clip: content-box;\n  cursor: pointer;\n}\n.application_wrapper::-webkit-scrollbar-button {\n  background-color: transparent;\n}\n.application_wrapper::-webkit-scrollbar-corner {\n  background-color: transparent;\n}\n.application_wrapper::-webkit-scrollbar-thumb {\n  border: solid transparent;\n  border-width: 6px;\n  background-color: #c5c5c5;\n  background-clip: content-box;\n  cursor: pointer;\n}\n.application_wrapper::-webkit-scrollbar-thumb:hover {\n  background-color: #bfbfbf;\n}\n.application_wrapper::-webkit-scrollbar-track {\n  border: solid #fff;\n  border-width: 1px 1px 1px 2px;\n  background-color: #fff;\n  background-clip: content-box;\n}\n.application_wrapper::-webkit-scrollbar-track-piece {\n  border-left: 1px solid #f0f4f5;\n  background-color: transparent;\n}\n.application_wrapper::-webkit-scrollbar:horizontal {\n  height: 12px;\n  background-color: transparent;\n  background-clip: content-box;\n}\n.application_wrapper::-webkit-scrollbar-track:horizontal {\n  background-color: #fff;\n  background-clip: content-box;\n}\n.application_wrapper::-webkit-scrollbar-track-piece:horizontal {\n  border-top: 1px solid transparent;\n  border-left: 1px solid transparent;\n}\n.application_wrapper::-webkit-scrollbar-thumb:horizontal {\n  border: solid transparent;\n  border-width: 2px 1px 2px 2px;\n  background-color: #c5c5c5;\n  background-clip: content-box;\n}\n.application_wrapper::-webkit-scrollbar-thumb:horizontal:hover {\n  background-color: #bfbfbf;\n}\n.application_wrapper::-webkit-scrollbar-corner {\n  display: none;\n}\n.application_wrapper::-webkit-resizer {\n  display: none;\n}\n.application_wrapper .create_account_screen {\n  display: block;\n  position: absolute;\n  top: 0;\n  left: 0;\n  bottom: 0;\n  right: 0;\n  min-height: 520px;\n  opacity: 0;\n  -moz-animation: fadeIn 0.4s ease-in-out forwards;\n  -ms-animation: fadeIn 0.4s ease-in-out forwards;\n  -webkit-animation: fadeIn 0.4s ease-in-out forwards;\n  -o-animation: fadeIn 0.4s ease-in-out forwards;\n  animation: fadeIn 0.4s ease-in-out forwards;\n}\n.application_wrapper .create_account_screen .create_account_form {\n  display: -webkit-flex;\n  display: -moz-flex;\n  display: -ms-flexbox;\n  display: -ms-flex;\n  display: flex;\n  -webkit-flex-direction: column;\n  -moz-flex-direction: column;\n  -ms-flex-direction: column;\n  flex-direction: column;\n  -webkit-justify-content: center;\n  -moz-justify-content: center;\n  -ms-justify-content: center;\n  justify-content: center;\n  -webkit-align-items: center;\n  -moz-align-items: center;\n  -ms-align-items: center;\n  align-items: center;\n  position: relative;\n  margin: 80px 0 200px 0;\n  min-height: 400px;\n}\n.application_wrapper .create_account_screen .create_account_form > h1 {\n  display: block;\n  position: relative;\n  font-size: 34px;\n  letter-spacing: .8px;\n  font-weight: 200;\n  line-height: 34px;\n  margin: 0 0 5px 0;\n}\n.application_wrapper .create_account_screen .create_account_form p {\n  display: block;\n  position: relative;\n  font-size: 16px;\n  font-weight: 100;\n  letter-spacing: .7px;\n  color: #363b4a;\n  text-align: center;\n  opacity: .5;\n  margin: 0 0 30px 0;\n}\n.application_wrapper .create_account_screen .create_account_form .checkbox_group {\n  display: block;\n  position: relative;\n  min-height: 40px;\n}\n.application_wrapper .create_account_screen .create_account_form .checkbox_group span {\n  letter-spacing: .5px;\n}\n.application_wrapper .create_account_screen .create_account_form .github_link {\n  display: block;\n  position: relative;\n  margin: 50px 0 50px 0;\n  opacity: 0;\n  -moz-animation: fadeIn 0.4s 0.3s ease-in-out forwards;\n  -ms-animation: fadeIn 0.4s 0.3s ease-in-out forwards;\n  -webkit-animation: fadeIn 0.4s 0.3s ease-in-out forwards;\n  -o-animation: fadeIn 0.4s 0.3s ease-in-out forwards;\n  animation: fadeIn 0.4s 0.3s ease-in-out forwards;\n}\n.application_wrapper .create_account_screen .create_account_form .github_link svg {\n  width: 26px;\n  height: 26px;\n}\n.application_wrapper .create_account_screen .create_account_form .github_link svg path {\n  -webkit-transition: all 0.2s ease-in-out;\n  -moz-transition: all 0.2s ease-in-out;\n  -ms-transition: all 0.2s ease-in-out;\n  -o-transition: all 0.2s ease-in-out;\n  transition: all 0.2s ease-in-out;\n  fill: #545a6a;\n}\n.application_wrapper .create_account_screen .create_account_form .github_link:hover svg path {\n  fill: #40b4de;\n}\n.application_wrapper .create_account_screen form {\n  width: 430px;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .application_wrapper .create_account_screen form {\n    width: 300px;\n  }\n}\n@-webkit-keyframes fadeIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n@-moz-keyframes fadeIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n@keyframes fadeIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n", ""]);
+	exports = module.exports = __webpack_require__(30)();
+	exports.push([module.id, "html {\n  color: #000;\n  background: #FFF;\n  overflow-y: scroll;\n  font-size: 100%;\n  -webkit-text-size-adjust: 100%;\n  -ms-text-size-adjust: 100%;\n  font-family: sans-serif;\n}\nhtml,\nbody {\n  height: 100%;\n  min-height: 100%;\n}\na {\n  background: transparent;\n}\na,\na:active,\na:hover {\n  outline: 0;\n}\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nnav,\nsection,\nbody,\ndiv,\ndl,\ndt,\ndd,\nul,\nol,\nli,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\npre,\ncode,\nform,\nfieldset,\nlegend,\ninput,\ntextarea,\np,\nblockquote,\nth,\ntd {\n  margin: 0;\n  padding: 0;\n}\ntable {\n  border-collapse: collapse;\n  border-spacing: 0;\n}\nfieldset,\nimg {\n  border: 0;\n}\naddress,\ncaption,\ncite,\ncode,\ndfn,\nem,\nstrong,\nth,\nvar {\n  font-style: normal;\n  font-weight: normal;\n}\nol,\nul {\n  list-style: none;\n}\ncaption,\nth {\n  text-align: left;\n}\nh1,\nh2,\nh3,\nh4,\nh5,\nh6 {\n  font-size: 100%;\n  font-weight: normal;\n}\nq:before,\nq:after {\n  content: '';\n}\nabbr,\nacronym {\n  border: 0;\n  font-variant: normal;\n}\n/* to preserve line-height and selector appearance */\nsup {\n  vertical-align: text-top;\n}\nsub {\n  vertical-align: text-bottom;\n}\ninput,\ntextarea,\nselect {\n  font-family: inherit;\n  font-size: inherit;\n  font-weight: inherit;\n  *font-size: 100%;\n  /*to enable resizing for IE*/\n}\nlegend {\n  color: #000;\n}\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nnav,\nsection {\n  display: block;\n}\naudio,\ncanvas,\nvideo {\n  display: inline-block;\n  *display: inline;\n  *zoom: 1;\n}\naudio:not([controls]) {\n  display: none;\n}\nsub,\nsup {\n  position: relative;\n  font-size: 75%;\n  line-height: 0;\n  vertical-align: baseline;\n}\nsup {\n  top: -0.5em;\n}\nsub {\n  bottom: -0.25em;\n}\nsvg:not(:root) {\n  overflow: hidden;\n}\nbutton,\ninput,\nselect,\ntextarea {\n  margin: 0;\n  font-size: 100%;\n  vertical-align: middle;\n}\nbutton,\ninput {\n  *overflow: visible;\n  line-height: normal;\n}\nbutton::-moz-focus-inner,\ninput::-moz-focus-inner {\n  padding: 0;\n  border: 0;\n}\nbutton,\ninput[type=\"button\"],\ninput[type=\"reset\"],\ninput[type=\"submit\"] {\n  cursor: pointer;\n  -webkit-appearance: button;\n}\ninput[type=\"search\"] {\n  -webkit-box-sizing: content-box;\n  -moz-box-sizing: content-box;\n  box-sizing: content-box;\n  -webkit-appearance: textfield;\n}\ninput[type=\"search\"]::-webkit-search-decoration,\ninput[type=\"search\"]::-webkit-search-cancel-button {\n  -webkit-appearance: none;\n}\ntextarea {\n  overflow: auto;\n  vertical-align: top;\n}\ncode,\nkbd,\npre,\nsamp {\n  font-family: monospace, monospace;\n  font-size: 1em;\n}\npre {\n  overflow: auto;\n}\nhr {\n  -moz-box-sizing: content-box;\n  box-sizing: content-box;\n  height: 0;\n}\ntable {\n  border-collapse: collapse;\n  border-spacing: 0;\n}\ntd,\nth {\n  padding: 0;\n}\nsvg {\n  display: block;\n}\n.hidden {\n  display: none !important;\n  visibility: hidden !important;\n  opacity: 0;\n}\n::selection {\n  background: #40b4de;\n  color: #fff;\n}\n::-moz-selection {\n  background: #40b4de;\n  color: #fff;\n}\n* {\n  outline: none;\n  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n  -webkit-tap-highlight-color: transparent;\n}\na {\n  color: #40b4de;\n  text-decoration: none;\n  -webkit-transition: color 0.3s ease-in-out;\n  -moz-transition: color 0.3s ease-in-out;\n  -ms-transition: color 0.3s ease-in-out;\n  -o-transition: color 0.3s ease-in-out;\n  transition: color 0.3s ease-in-out;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  -o-user-select: none;\n  user-select: none;\n}\na:hover {\n  color: #1b7a9d;\n  text-decoration: none;\n}\na:active {\n  color: #97d6ed;\n}\na:focus {\n  outline: none;\n}\np {\n  font-size: 14px;\n  line-height: 1.6;\n  margin: 0 0 11px;\n}\ntable {\n  width: 100%;\n}\ntable thead,\ntable tr,\ntable th,\ntable td {\n  vertical-align: middle;\n}\ntable td {\n  padding-right: 20px;\n}\n.input_group {\n  display: block;\n  position: relative;\n  width: 100%;\n  min-height: 70px;\n  margin-bottom: 10px;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .input_group {\n    min-height: 64px;\n    margin-bottom: 0;\n  }\n}\n.input_group label.input_label {\n  display: -webkit-flex;\n  display: -moz-flex;\n  display: -ms-flexbox;\n  display: -ms-flex;\n  display: flex;\n  -webkit-align-items: center;\n  -moz-align-items: center;\n  -ms-align-items: center;\n  align-items: center;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  -o-user-select: none;\n  user-select: none;\n  -webkit-box-sizing: border-box;\n  -khtml-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  position: absolute;\n  z-index: 10;\n  cursor: text;\n  padding: 0 0 0 15px;\n}\n.input_group label.input_label .label_text {\n  font-size: 18px;\n  font-weight: 100;\n  letter-spacing: .7px;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .input_group label.input_label .label_text {\n    font-size: 16px;\n    font-weight: 300;\n  }\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .input_group label.input_label {\n    height: 64px;\n  }\n}\n.input_group.input_empty.input_unfocused {\n  color: #c1c5cc;\n}\n.input_group.input_focused label.input_label,\n.input_group.input_hasValue label.input_label {\n  height: 46px;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .input_group.input_focused label.input_label,\n  .input_group.input_hasValue label.input_label {\n    height: 40px;\n  }\n}\n.input_group.input_focused label.input_label .label_text,\n.input_group.input_hasValue label.input_label .label_text {\n  color: #b8bdc4;\n  letter-spacing: .7px;\n  font-size: 11px;\n}\n.input_group.input_unfocused.input_hasValue.input_valid label.input_label {\n  color: #b1b0b1;\n}\n.input_group input.input {\n  display: block;\n  position: relative;\n  -webkit-box-shadow: none;\n  -moz-box-shadow: none;\n  box-shadow: none;\n  width: 100%;\n  -webkit-box-sizing: border-box;\n  -khtml-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  -webkit-transition: all 0.7s ease-in-out;\n  -moz-transition: all 0.7s ease-in-out;\n  -ms-transition: all 0.7s ease-in-out;\n  -o-transition: all 0.7s ease-in-out;\n  transition: all 0.7s ease-in-out;\n  z-index: 1;\n  -webkit-appearance: none;\n  border: none;\n  outline: none;\n  padding: 18px 15px 0 15px;\n  margin: 0 auto 13px auto;\n  color: #363b4a;\n  letter-spacing: .7px;\n  font-family: 'Roboto', sans-serif;\n  font-weight: 300;\n  font-size: 16px;\n  height: 70px;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .input_group input.input {\n    font-size: 14px;\n    padding: 15px 15px 0 15px;\n    height: 64px;\n  }\n}\n.input_group input.input:-webkit-autofill {\n  -webkit-box-shadow: 0 0 0px 1000px white inset;\n  color: #cacaca;\n}\n.input_group i {\n  top: 0;\n  right: 15px;\n  display: -webkit-flex;\n  display: -moz-flex;\n  display: -ms-flexbox;\n  display: -ms-flex;\n  display: flex;\n  -webkit-flex-direction: row;\n  -moz-flex-direction: row;\n  -ms-flex-direction: row;\n  flex-direction: row;\n  -webkit-align-items: center;\n  -moz-align-items: center;\n  -ms-align-items: center;\n  align-items: center;\n  width: 20px;\n  height: 70px;\n  z-index: 1000;\n  position: absolute;\n  z-index: 100;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .input_group i {\n    height: 64px;\n  }\n}\n.input_group i svg {\n  opacity: 0;\n  -webkit-transition: all 0.2s ease-in-out;\n  -moz-transition: all 0.2s ease-in-out;\n  -ms-transition: all 0.2s ease-in-out;\n  -o-transition: all 0.2s ease-in-out;\n  transition: all 0.2s ease-in-out;\n  width: 20px;\n  height: 20px;\n}\n.input_group i.input_error_icon {\n  z-index: 10;\n}\n.input_group i.input_error_icon path {\n  fill: #f16767;\n}\n.input_group i.input_valid_icon {\n  z-index: 1;\n}\n.input_group i.input_valid_icon path {\n  fill: #50b87f;\n}\n.input_group .validationIcons.invisible i {\n  display: none;\n}\n.input_group.input_error i.input_error_icon svg {\n  opacity: 1;\n}\n.input_group.input_valid i.input_error_icon {\n  z-index: 1;\n}\n.input_group.input_valid i.input_valid_icon {\n  z-index: 10;\n}\n.input_group.input_valid.input_hasValue i.input_valid_icon svg {\n  opacity: 1;\n}\n.error_container {\n  position: absolute;\n  opacity: 0;\n  top: 0;\n  left: 100%;\n  white-space: nowrap;\n  line-height: 70px;\n  width: auto;\n  height: 70px;\n  background: #f16767;\n  -webkit-box-sizing: border-box;\n  -khtml-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  padding: 0 20px 0 20px;\n  color: white;\n  font-size: 14px;\n  font-weight: 100;\n  letter-spacing: .6px;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  -o-user-select: none;\n  user-select: none;\n  -webkit-transition: all 0.2s ease-in-out;\n  -moz-transition: all 0.2s ease-in-out;\n  -ms-transition: all 0.2s ease-in-out;\n  -o-transition: all 0.2s ease-in-out;\n  transition: all 0.2s ease-in-out;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .error_container {\n    position: relative;\n    top: -13px;\n    left: 0;\n    line-height: 30px;\n    font-size: 12px;\n    padding: 0 15px 0 15px;\n    font-weight: 300;\n  }\n}\n.error_container.visible {\n  -o-transform: translateX(0px);\n  -webkit-transform: translateX(0px);\n  -moz-transform: translateX(0px);\n  -ms-transform: translateX(0px);\n  transform: translateX(0px);\n  opacity: 1;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .error_container.visible {\n    height: 30px;\n  }\n}\n.error_container.invisible {\n  -o-transform: translateX(-30px);\n  -webkit-transform: translateX(-30px);\n  -moz-transform: translateX(-30px);\n  -ms-transform: translateX(-30px);\n  transform: translateX(-30px);\n  opacity: 0;\n  -webkit-animation-delay: 2s;\n  /* Chrome, Safari, Opera */\n  animation-delay: 2s;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .error_container.invisible {\n    height: 0;\n    line-height: 0;\n    -o-transform: translateX(0px);\n    -webkit-transform: translateX(0px);\n    -moz-transform: translateX(0px);\n    -ms-transform: translateX(0px);\n    transform: translateX(0px);\n  }\n}\n.password_validator {\n  top: 0;\n  left: 105%;\n  position: absolute;\n  display: block;\n  opacity: 0;\n  width: 320px;\n  height: auto;\n  -webkit-box-sizing: border-box;\n  -khtml-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  -o-user-select: none;\n  user-select: none;\n  -webkit-transition: all 0.2s ease-in-out;\n  -moz-transition: all 0.2s ease-in-out;\n  -ms-transition: all 0.2s ease-in-out;\n  -o-transition: all 0.2s ease-in-out;\n  transition: all 0.2s ease-in-out;\n  opacity: 1;\n  z-index: 100;\n}\n.password_validator:after {\n  display: block;\n  position: absolute;\n  top: 30px;\n  left: -10px;\n  content: '';\n  border-top: 10px solid transparent;\n  border-bottom: 10px solid transparent;\n  border-right: 10px solid #e4e7e8;\n}\n.password_validator .validator_container {\n  display: block;\n  position: relative;\n  -webkit-box-sizing: border-box;\n  -khtml-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  -webkit-border-radius: 4px;\n  -moz-border-radius: 4px;\n  border-radius: 4px;\n  background: #e4e7e8;\n  padding: 10px 0px 10px 20px;\n}\n.password_validator .validator_container h4.validator_title {\n  display: block;\n  position: relative;\n  -webkit-transition: all 0.2s ease-in-out;\n  -moz-transition: all 0.2s ease-in-out;\n  -ms-transition: all 0.2s ease-in-out;\n  -o-transition: all 0.2s ease-in-out;\n  transition: all 0.2s ease-in-out;\n  margin: 12px 0 5px 0;\n  font-size: 12px;\n  font-weight: 500;\n  text-transform: uppercase;\n  color: #363b4a;\n  opacity: .25;\n  letter-spacing: 1.5px;\n}\n.password_validator .validator_container h4.validator_title.valid {\n  color: #50b87f;\n  opacity: 1;\n}\n.password_validator .validator_container ul.rules_list {\n  display: block;\n  position: relative;\n  margin: 0;\n  padding: 0;\n}\n.password_validator .validator_container ul.rules_list > li {\n  display: block;\n  position: relative;\n  margin: 12px 0 12px 0;\n  font-size: 12px;\n  letter-spacing: .3px;\n  font-weight: 200;\n  color: #363b4a;\n}\n.password_validator .validator_container ul.rules_list > li .bad_word {\n  font-style: italic;\n  padding: 0 5px 0 0;\n}\n.password_validator .validator_container ul.rules_list > li .bad_word:after {\n  content: ',';\n  display: inline;\n}\n.password_validator .validator_container ul.rules_list > li .bad_word:last-child {\n  padding: 0;\n}\n.password_validator .validator_container ul.rules_list > li .bad_word:last-child:after {\n  display: none;\n}\n.password_validator .validator_container ul.rules_list > li .icon_invalid {\n  display: block;\n  position: absolute;\n  top: 1px;\n  left: 0;\n  -webkit-transform: scale(1);\n  -moz-transform: scale(1);\n  -ms-transform: scale(1);\n  -o-transform: scale(1);\n  transform: scale(1);\n  opacity: 1;\n  width: 18px;\n  height: 18px;\n  -webkit-transition: all 0.2s ease-in-out;\n  -moz-transition: all 0.2s ease-in-out;\n  -ms-transition: all 0.2s ease-in-out;\n  -o-transition: all 0.2s ease-in-out;\n  transition: all 0.2s ease-in-out;\n}\n.password_validator .validator_container ul.rules_list > li .icon_invalid svg {\n  opacity: 1;\n  width: 18px;\n  height: 18px;\n}\n.password_validator .validator_container ul.rules_list > li .icon_invalid svg path {\n  fill: #f16767;\n}\n.password_validator .validator_container ul.rules_list > li .icon_valid {\n  position: absolute;\n  top: 1px;\n  left: 0;\n  -webkit-transform: scale(0);\n  -moz-transform: scale(0);\n  -ms-transform: scale(0);\n  -o-transform: scale(0);\n  transform: scale(0);\n  opacity: 0;\n  width: 19px;\n  height: 19px;\n  -webkit-transition: all 0.2s ease-in-out;\n  -moz-transition: all 0.2s ease-in-out;\n  -ms-transition: all 0.2s ease-in-out;\n  -o-transition: all 0.2s ease-in-out;\n  transition: all 0.2s ease-in-out;\n}\n.password_validator .validator_container ul.rules_list > li .icon_valid svg {\n  opacity: 1;\n  width: 19px;\n  height: 19px;\n}\n.password_validator .validator_container ul.rules_list > li .error_message {\n  display: block;\n  position: relative;\n  -webkit-transition: all 0.2s ease-in-out;\n  -moz-transition: all 0.2s ease-in-out;\n  -ms-transition: all 0.2s ease-in-out;\n  -o-transition: all 0.2s ease-in-out;\n  transition: all 0.2s ease-in-out;\n  padding: 0 0 0 27px;\n  opacity: .9;\n}\n.password_validator .validator_container ul.rules_list > li.valid .icon_invalid {\n  -webkit-transform: scale(0);\n  -moz-transform: scale(0);\n  -ms-transform: scale(0);\n  -o-transform: scale(0);\n  transform: scale(0);\n  opacity: 0;\n}\n.password_validator .validator_container ul.rules_list > li.valid .icon_valid {\n  -webkit-transform: scale(1);\n  -moz-transform: scale(1);\n  -ms-transform: scale(1);\n  -o-transform: scale(1);\n  transform: scale(1);\n  opacity: 1;\n}\n.password_validator .validator_container ul.rules_list > li.valid .error_message {\n  opacity: .3;\n}\n.password_validator.visible {\n  -o-transform: translateX(0px);\n  -webkit-transform: translateX(0px);\n  -moz-transform: translateX(0px);\n  -ms-transform: translateX(0px);\n  transform: translateX(0px);\n  opacity: 1;\n}\n.password_validator.invisible {\n  -o-transform: translateX(-15px);\n  -webkit-transform: translateX(-15px);\n  -moz-transform: translateX(-15px);\n  -ms-transform: translateX(-15px);\n  transform: translateX(-15px);\n  opacity: 0;\n  -webkit-animation-delay: 2s;\n  /* Chrome, Safari, Opera */\n  animation-delay: 2s;\n}\n.Select {\n  position: relative;\n}\n.Select .Select-control {\n  display: block;\n  position: relative;\n  -webkit-box-shadow: none;\n  -moz-box-shadow: none;\n  box-shadow: none;\n  width: 100%;\n  height: 70px;\n  -webkit-box-sizing: border-box;\n  -khtml-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  -webkit-transition: all 0.7s ease-in-out;\n  -moz-transition: all 0.7s ease-in-out;\n  -ms-transition: all 0.7s ease-in-out;\n  -o-transition: all 0.7s ease-in-out;\n  transition: all 0.7s ease-in-out;\n  background: white;\n  z-index: 1;\n  -webkit-appearance: none;\n  border: none;\n  outline: none;\n  margin: 0 auto 13px auto;\n  color: #363b4a;\n  letter-spacing: .5px;\n  font-weight: 300;\n  font-size: 18px;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .Select .Select-control {\n    height: 64px;\n  }\n}\n.Select.is-searchable.is-open > .Select-control {\n  cursor: text;\n}\n.Select.is-open > .Select-control {\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  background: white;\n  border-color: #b3b3b3 #cccccc #d9d9d9;\n}\n.Select.is-open > .Select-control > .Select-arrow {\n  border-color: transparent transparent #999999;\n  border-width: 0 8px 8px;\n}\n.Select.is-searchable.is-focused:not(.is-open) > .Select-control {\n  cursor: text;\n}\n.Select .Select-placeholder {\n  display: block;\n  top: 20px;\n  left: 0;\n  font-size: 18px;\n  font-weight: 100;\n  letter-spacing: .7px;\n  position: absolute;\n  cursor: text;\n  padding: 0 0 0 15px;\n  color: #c1c5cc;\n  z-index: 10;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .Select .Select-placeholder {\n    font-size: 16px;\n    font-weight: 300;\n  }\n}\n.Select .Select-actual-placeholder {\n  position: absolute;\n  display: none;\n  color: #b8bdc4;\n  letter-spacing: .3px;\n  font-size: 11px;\n  top: 14px;\n  left: 15px;\n  z-index: 10;\n  font-weight: 300;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .Select .Select-actual-placeholder {\n    font-weight: 300;\n  }\n}\n.Select.is-focused .Select-placeholder {\n  opacity: 0;\n}\n.Select.has-value .Select-actual-placeholder,\n.Select.is-focused.has-value .Select-actual-placeholder {\n  display: block;\n}\n.Select.has-value .Select-placeholder,\n.Select.is-focused.has-value .Select-placeholder {\n  color: #333333;\n  opacity: 1;\n  top: 30px;\n  color: #363b4a;\n  letter-spacing: .5px;\n  font-weight: 300;\n  font-size: 16px;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .Select.has-value .Select-placeholder,\n  .Select.is-focused.has-value .Select-placeholder {\n    font-size: 14px;\n  }\n}\n.Select.is-focused .Select-placeholder {\n  opacity: 0;\n}\n.Select.is-focused .Select-actual-placeholder {\n  display: block;\n}\n.Select.is-open .Select-actual-placeholder {\n  display: block;\n}\n.Select.is-open .Select-placeholder {\n  display: none;\n}\n.Select.is-open.has-value .Select-placeholder,\n.Select.is-open.has-value.is-focused .Select-placeholder {\n  display: block;\n}\n.Select .Select-input > input {\n  display: block;\n  position: relative;\n  -webkit-box-shadow: none;\n  -moz-box-shadow: none;\n  box-shadow: none;\n  width: 410px;\n  height: 70px;\n  -webkit-border-radius: 3px;\n  -moz-border-radius: 3px;\n  border-radius: 3px;\n  -webkit-transition: all 0.7s ease-in-out;\n  -moz-transition: all 0.7s ease-in-out;\n  -ms-transition: all 0.7s ease-in-out;\n  -o-transition: all 0.7s ease-in-out;\n  transition: all 0.7s ease-in-out;\n  -webkit-box-sizing: border-box;\n  -khtml-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  z-index: 1;\n  -webkit-appearance: none;\n  border: none;\n  outline: none;\n  padding: 16px 15px 0 15px;\n  margin: 0 auto 13px auto;\n  color: #363b4a;\n  letter-spacing: .5px;\n  font-weight: 300;\n  font-size: 16px;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .Select .Select-input > input {\n    height: 64px;\n    font-size: 14px;\n  }\n}\n.is-focused .Select .Select-input > input {\n  cursor: text;\n}\n.Select .Select-control:not(.is-searchable) > .Select-input {\n  outline: none;\n}\n.Select .Select-loading {\n  -moz-animation: spin 400ms infinite linear;\n  -ms-animation: spin 400ms infinite linear;\n  -webkit-animation: spin 400ms infinite linear;\n  -o-animation: spin 400ms infinite linear;\n  animation: spin 400ms infinite linear;\n  width: 16px;\n  height: 16px;\n  box-sizing: border-box;\n  border-radius: 50%;\n  border: 2px solid #cccccc;\n  border-right-color: #333333;\n  display: inline-block;\n  position: relative;\n  margin-top: -8px;\n  position: absolute;\n  right: 30px;\n  top: 50%;\n}\n.Select .has-value > .Select-control > .Select-loading {\n  right: 46px;\n}\n.Select .Select-clear {\n  opacity: 0;\n}\n.Select .Select-arrow {\n  border-color: #999999 transparent transparent;\n  border-style: solid;\n  border-width: 8px 8px 0;\n  content: \" \";\n  display: block;\n  height: 0;\n  margin-top: -ceil(4px);\n  position: absolute;\n  right: 15px;\n  top: 32px;\n  width: 0;\n  opacity: .8;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .Select .Select-arrow {\n    top: 30px;\n  }\n}\n.Select .Select-menu {\n  border-bottom-right-radius: 4px;\n  border-bottom-left-radius: 4px;\n  background-color: white;\n  margin-top: 0px;\n  margin-left: -2px;\n  border: 2px solid #f0f4f5;\n  max-height: 210px;\n  overflow-y: auto;\n  position: absolute;\n  top: 100%;\n  width: 100%;\n  z-index: 1000;\n  -webkit-overflow-scrolling: touch;\n}\n.Select .Select-menu::-webkit-scrollbar {\n  width: 11px;\n  background-color: transparent;\n  background-clip: content-box;\n}\n.Select .Select-menu::-webkit-scrollbar-button {\n  background-color: transparent;\n}\n.Select .Select-menu::-webkit-scrollbar-corner {\n  background-color: transparent;\n}\n.Select .Select-menu::-webkit-scrollbar-thumb {\n  border: solid transparent;\n  border-width: 1px 1px 1px 2px;\n  background-color: #c5c5c5;\n  background-clip: content-box;\n}\n.Select .Select-menu::-webkit-scrollbar-thumb:hover {\n  background-color: #bfbfbf;\n}\n.Select .Select-menu::-webkit-scrollbar-track {\n  border: solid #fff;\n  border-width: 1px 1px 1px 2px;\n  background-color: #fff;\n  background-clip: content-box;\n}\n.Select .Select-menu::-webkit-scrollbar-track-piece {\n  border-left: 1px solid #ccc;\n  background-color: transparent;\n}\n.Select .Select-menu::-webkit-scrollbar:horizontal {\n  height: 12px;\n  background-color: transparent;\n  background-clip: content-box;\n}\n.Select .Select-menu::-webkit-scrollbar-track:horizontal {\n  background-color: #fff;\n  background-clip: content-box;\n}\n.Select .Select-menu::-webkit-scrollbar-track-piece:horizontal {\n  border-top: 1px solid #ccc;\n  border-left: 1px solid transparent;\n}\n.Select .Select-menu::-webkit-scrollbar-thumb:horizontal {\n  border: solid transparent;\n  border-width: 2px 1px 2px 2px;\n  background-color: #c5c5c5;\n  background-clip: content-box;\n}\n.Select .Select-menu::-webkit-scrollbar-thumb:horizontal:hover {\n  background-color: #bfbfbf;\n}\n.Select .Select-menu::-webkit-scrollbar-corner {\n  display: none;\n}\n.Select .Select-menu::-webkit-resizer {\n  display: none;\n}\n.Select .Select-menu::-webkit-scrollbar {\n  width: 16px;\n  background-color: transparent;\n  background-clip: content-box;\n  cursor: pointer;\n}\n.Select .Select-menu::-webkit-scrollbar-button {\n  background-color: transparent;\n}\n.Select .Select-menu::-webkit-scrollbar-corner {\n  background-color: transparent;\n}\n.Select .Select-menu::-webkit-scrollbar-thumb {\n  border: solid transparent;\n  border-width: 6px;\n  background-color: #c5c5c5;\n  background-clip: content-box;\n  cursor: pointer;\n}\n.Select .Select-menu::-webkit-scrollbar-thumb:hover {\n  background-color: #bfbfbf;\n}\n.Select .Select-menu::-webkit-scrollbar-track {\n  border: solid #fff;\n  border-width: 1px 1px 1px 2px;\n  background-color: #fff;\n  background-clip: content-box;\n}\n.Select .Select-menu::-webkit-scrollbar-track-piece {\n  border-left: 1px solid #f0f4f5;\n  background-color: transparent;\n}\n.Select .Select-menu::-webkit-scrollbar:horizontal {\n  height: 12px;\n  background-color: transparent;\n  background-clip: content-box;\n}\n.Select .Select-menu::-webkit-scrollbar-track:horizontal {\n  background-color: #fff;\n  background-clip: content-box;\n}\n.Select .Select-menu::-webkit-scrollbar-track-piece:horizontal {\n  border-top: 1px solid transparent;\n  border-left: 1px solid transparent;\n}\n.Select .Select-menu::-webkit-scrollbar-thumb:horizontal {\n  border: solid transparent;\n  border-width: 2px 1px 2px 2px;\n  background-color: #c5c5c5;\n  background-clip: content-box;\n}\n.Select .Select-menu::-webkit-scrollbar-thumb:horizontal:hover {\n  background-color: #bfbfbf;\n}\n.Select .Select-menu::-webkit-scrollbar-corner {\n  display: none;\n}\n.Select .Select-menu::-webkit-resizer {\n  display: none;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .Select .Select-menu {\n    top: 64px;\n  }\n}\n.Select .Select-option {\n  box-sizing: border-box;\n  color: #666666;\n  cursor: pointer;\n  display: block;\n  padding: 8px 15px;\n  font-weight: 100;\n  letter-spacing: .4px;\n}\n.Select .Select-option:last-child {\n  border-bottom-right-radius: 4px;\n  border-bottom-left-radius: 4px;\n}\n.Select .Select-option.is-focused {\n  background-color: #82d2f0;\n  color: #fff;\n}\n.Select .Select-noresults {\n  box-sizing: border-box;\n  color: #999999;\n  cursor: default;\n  display: block;\n  padding: 8px 10px;\n}\n@keyframes spin {\n  to {\n    transform: rotate(1turn);\n  }\n}\n@-webkit-keyframes spin {\n  to {\n    -webkit-transform: rotate(1turn);\n  }\n}\n.button {\n  -webkit-transition: all 0.2s ease-in-out;\n  -moz-transition: all 0.2s ease-in-out;\n  -ms-transition: all 0.2s ease-in-out;\n  -o-transition: all 0.2s ease-in-out;\n  transition: all 0.2s ease-in-out;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  -o-user-select: none;\n  user-select: none;\n  display: inline-block;\n  position: relative;\n  border: none;\n  border-radius: 3px;\n  background: #545a6a;\n  color: #ffffff;\n  font: normal normal 200 13px/40px 'Roboto', sans-serif;\n  text-transform: uppercase;\n  letter-spacing: 1.5px;\n  height: 40px;\n  padding: 0px 15px;\n  -webkit-font-smoothing: subpixel-antialiased;\n  cursor: pointer;\n  white-space: nowrap;\n}\n.button.button_wide {\n  display: block;\n  position: relative;\n  width: 100%;\n  margin: 20px 0 0 0;\n  height: 50px;\n  font-size: 13px;\n}\n.button:hover,\n.button:focus {\n  color: #ffffff;\n  background: #40b4de;\n}\n.button:active,\n.button.active {\n  -webkit-box-shadow: none;\n  -moz-box-shadow: none;\n  box-shadow: none;\n  background: #6bc5e6;\n}\nhtml {\n  width: 100%;\n  height: 100%;\n  overflow: hidden;\n}\nbody {\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  -webkit-font-smoothing: subpixel-antialiased;\n  background: #f0f4f5;\n  overflow: hidden;\n  font: normal normal 100 14px/1.6 'Roboto', sans-serif;\n  -webkit-overflow-scrolling: touch;\n  display: block;\n}\n.application_wrapper {\n  display: block;\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  z-index: 1;\n  overflow-y: scroll;\n}\n.application_wrapper::-webkit-scrollbar {\n  width: 11px;\n  background-color: transparent;\n  background-clip: content-box;\n}\n.application_wrapper::-webkit-scrollbar-button {\n  background-color: transparent;\n}\n.application_wrapper::-webkit-scrollbar-corner {\n  background-color: transparent;\n}\n.application_wrapper::-webkit-scrollbar-thumb {\n  border: solid transparent;\n  border-width: 1px 1px 1px 2px;\n  background-color: #c5c5c5;\n  background-clip: content-box;\n}\n.application_wrapper::-webkit-scrollbar-thumb:hover {\n  background-color: #bfbfbf;\n}\n.application_wrapper::-webkit-scrollbar-track {\n  border: solid #fff;\n  border-width: 1px 1px 1px 2px;\n  background-color: #fff;\n  background-clip: content-box;\n}\n.application_wrapper::-webkit-scrollbar-track-piece {\n  border-left: 1px solid #ccc;\n  background-color: transparent;\n}\n.application_wrapper::-webkit-scrollbar:horizontal {\n  height: 12px;\n  background-color: transparent;\n  background-clip: content-box;\n}\n.application_wrapper::-webkit-scrollbar-track:horizontal {\n  background-color: #fff;\n  background-clip: content-box;\n}\n.application_wrapper::-webkit-scrollbar-track-piece:horizontal {\n  border-top: 1px solid #ccc;\n  border-left: 1px solid transparent;\n}\n.application_wrapper::-webkit-scrollbar-thumb:horizontal {\n  border: solid transparent;\n  border-width: 2px 1px 2px 2px;\n  background-color: #c5c5c5;\n  background-clip: content-box;\n}\n.application_wrapper::-webkit-scrollbar-thumb:horizontal:hover {\n  background-color: #bfbfbf;\n}\n.application_wrapper::-webkit-scrollbar-corner {\n  display: none;\n}\n.application_wrapper::-webkit-resizer {\n  display: none;\n}\n.application_wrapper::-webkit-scrollbar {\n  width: 16px;\n  background-color: transparent;\n  background-clip: content-box;\n  cursor: pointer;\n}\n.application_wrapper::-webkit-scrollbar-button {\n  background-color: transparent;\n}\n.application_wrapper::-webkit-scrollbar-corner {\n  background-color: transparent;\n}\n.application_wrapper::-webkit-scrollbar-thumb {\n  border: solid transparent;\n  border-width: 6px;\n  background-color: #c5c5c5;\n  background-clip: content-box;\n  cursor: pointer;\n}\n.application_wrapper::-webkit-scrollbar-thumb:hover {\n  background-color: #bfbfbf;\n}\n.application_wrapper::-webkit-scrollbar-track {\n  border: solid #fff;\n  border-width: 1px 1px 1px 2px;\n  background-color: #fff;\n  background-clip: content-box;\n}\n.application_wrapper::-webkit-scrollbar-track-piece {\n  border-left: 1px solid #f0f4f5;\n  background-color: transparent;\n}\n.application_wrapper::-webkit-scrollbar:horizontal {\n  height: 12px;\n  background-color: transparent;\n  background-clip: content-box;\n}\n.application_wrapper::-webkit-scrollbar-track:horizontal {\n  background-color: #fff;\n  background-clip: content-box;\n}\n.application_wrapper::-webkit-scrollbar-track-piece:horizontal {\n  border-top: 1px solid transparent;\n  border-left: 1px solid transparent;\n}\n.application_wrapper::-webkit-scrollbar-thumb:horizontal {\n  border: solid transparent;\n  border-width: 2px 1px 2px 2px;\n  background-color: #c5c5c5;\n  background-clip: content-box;\n}\n.application_wrapper::-webkit-scrollbar-thumb:horizontal:hover {\n  background-color: #bfbfbf;\n}\n.application_wrapper::-webkit-scrollbar-corner {\n  display: none;\n}\n.application_wrapper::-webkit-resizer {\n  display: none;\n}\n.application_wrapper .create_account_screen {\n  display: block;\n  position: absolute;\n  top: 0;\n  left: 0;\n  bottom: 0;\n  right: 0;\n  min-height: 520px;\n  opacity: 0;\n  -moz-animation: fadeIn 0.4s ease-in-out forwards;\n  -ms-animation: fadeIn 0.4s ease-in-out forwards;\n  -webkit-animation: fadeIn 0.4s ease-in-out forwards;\n  -o-animation: fadeIn 0.4s ease-in-out forwards;\n  animation: fadeIn 0.4s ease-in-out forwards;\n}\n.application_wrapper .create_account_screen .create_account_form {\n  display: -webkit-flex;\n  display: -moz-flex;\n  display: -ms-flexbox;\n  display: -ms-flex;\n  display: flex;\n  -webkit-flex-direction: column;\n  -moz-flex-direction: column;\n  -ms-flex-direction: column;\n  flex-direction: column;\n  -webkit-justify-content: center;\n  -moz-justify-content: center;\n  -ms-justify-content: center;\n  justify-content: center;\n  -webkit-align-items: center;\n  -moz-align-items: center;\n  -ms-align-items: center;\n  align-items: center;\n  position: relative;\n  margin: 80px 0 200px 0;\n  min-height: 400px;\n}\n.application_wrapper .create_account_screen .create_account_form > h1 {\n  display: block;\n  position: relative;\n  font-size: 34px;\n  letter-spacing: .8px;\n  font-weight: 200;\n  line-height: 34px;\n  margin: 0 0 5px 0;\n}\n.application_wrapper .create_account_screen .create_account_form p {\n  display: block;\n  position: relative;\n  font-size: 16px;\n  font-weight: 100;\n  letter-spacing: .7px;\n  color: #363b4a;\n  text-align: center;\n  opacity: .5;\n  margin: 0 0 30px 0;\n}\n.application_wrapper .create_account_screen .create_account_form .checkbox_group {\n  display: block;\n  position: relative;\n  min-height: 40px;\n}\n.application_wrapper .create_account_screen .create_account_form .checkbox_group span {\n  letter-spacing: .5px;\n}\n.application_wrapper .create_account_screen .create_account_form .github_link {\n  display: block;\n  position: relative;\n  margin: 50px 0 50px 0;\n  opacity: 0;\n  -moz-animation: fadeIn 0.4s 0.3s ease-in-out forwards;\n  -ms-animation: fadeIn 0.4s 0.3s ease-in-out forwards;\n  -webkit-animation: fadeIn 0.4s 0.3s ease-in-out forwards;\n  -o-animation: fadeIn 0.4s 0.3s ease-in-out forwards;\n  animation: fadeIn 0.4s 0.3s ease-in-out forwards;\n}\n.application_wrapper .create_account_screen .create_account_form .github_link svg {\n  width: 26px;\n  height: 26px;\n}\n.application_wrapper .create_account_screen .create_account_form .github_link svg path {\n  -webkit-transition: all 0.2s ease-in-out;\n  -moz-transition: all 0.2s ease-in-out;\n  -ms-transition: all 0.2s ease-in-out;\n  -o-transition: all 0.2s ease-in-out;\n  transition: all 0.2s ease-in-out;\n  fill: #545a6a;\n}\n.application_wrapper .create_account_screen .create_account_form .github_link:hover svg path {\n  fill: #40b4de;\n}\n.application_wrapper .create_account_screen form {\n  width: 430px;\n}\n@media only screen and (min-width : 0px) and (max-width : 870px) {\n  .application_wrapper .create_account_screen form {\n    width: 300px;\n  }\n}\n@-webkit-keyframes fadeIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n@-moz-keyframes fadeIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n@keyframes fadeIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n", ""]);
 
 /***/ },
 /* 6 */
@@ -372,112 +417,105 @@
 	var React = __webpack_require__(1);
 	var _ = __webpack_require__(3);
 	var cx = React.addons.classSet;
-	var ValidateMixin=__webpack_require__(11);
-	var FormValidator=__webpack_require__(12);
+	var ValidateMixin = __webpack_require__(11);
+	var FormValidator = __webpack_require__(12);
 
-	var FormField=React.createClass({displayName: "FormField",
+	var FormField = React.createClass({displayName: "FormField",
 
-	    mixins:[ValidateMixin],
+	    mixins: [ValidateMixin],
 
-	    getDefaultProps:function(){
-
-
-	    },
-
-	    getInitialState:function(){
+	    getInitialState: function () {
 	        return {
-	            id:this.props.id,
-	            type:this.props.type,
-	            focus:false,
-	            empty:_.isEmpty(this.props.value),
-	            label:this.props.label,
-	            value:null,
-	            defaultValue:this.props.defaultValue,
-	            validateRules:this.props.validateRules,
-	            validateStatus:[],
-	            showValidator:false,
-	            isValid:false
+	            id: this.props.id,
+	            type: this.props.type,
+	            focus: false,
+	            empty: _.isEmpty(this.props.value),
+	            initial: true,
+	            label: this.props.label,
+	            value: null,
+	            validateRules: this.props.validateRules,
+	            validateStatus: [],
+	            showValidator: false,
+	            valid: false
 	        }
 	    },
-
-	    componentWillReceiveProps: function (newProps) {
-	        // perform update only when new value exists and not empty
-	        if(newProps.value) {
-	            if(!_.isUndefined(newProps.value) && newProps.value.length > 0) {
-	                if(this.props.validateRules) {
-	                    var result = this.checkRules(newProps.value);
-	                    var valid = this.isValid(result);
-	                    this.setState({
-	                        validateStatus: result,
-	                        isValid: valid
-	                    });
-	                }
-	                this.setState({
-	                    value: newProps.value,
-	                    empty: _.isEmpty(newProps.value)
-	                });
-	            }
-	        }
-	    },
-	    handleChange: function(event){
-
+	    handleChange: function (event) {
 	        this.setState({
 	            value: event.target.value,
 	            empty: _.isEmpty(event.target.value)
 	        });
 
-	        if(this.props.validateRules) {
-	            var result=  this.checkRules(event.target.value);
-	            var valid=this.isValid(result);
-	            this.setState({
-	                validateStatus: result,
-	                isValid:valid
-	            });
-	        }
 	        // call onChange method on the parent component for updating it's state
-	        if(this.props.onChange) {
+	        if (this.props.onChange) {
 	            this.props.onChange(event);
 	        }
+	        this.isValid();
 	    },
-	    isValid:function(result){
-	        var valid=_.every(_.map(result,function(item){
-	            return item.valid;
-	        }),Boolean);
-	        return valid;
+	    getValue: function () {
+	        return this.state.value;
 	    },
-	    handleFocus: function () {
+	    reset: function () {
+	        this.setState({
+	            focus: false,
+	            initial: true,
+	            value: null,
+	            empty:true,
+	            validateStatus: [],
+	            showValidator: false,
+	            valid: false
+	        })
+	    },
+	    isValid: function () {
+	        if (this.props.validateRules) {
+	            var result = this.checkRules(this.state.value);
+	            var valid = _.every(_.map(result, function (item) {
+	                return item.valid;
+	            }), Boolean);
+	            this.setState({
+	                validateStatus: result,
+	                valid: valid,
+	                initial:false
+	            });
+	            return valid;
+	        }
+	        return true;
+	    },
+	    handleFocus: function (event) {
 	        this.setState({
 	            focus: true,
-	            showValidator:true
+	            showValidator: true,
+	            initial: false
 	        });
+	        this.isValid();
 	    },
 
 	    handleBlur: function () {
 	        this.setState({
 	            focus: false,
-	            showValidator:false
+	            showValidator: false
 	        });
+	        this.isValid();
 	    },
 
-	    render:function(){
+	    render: function () {
 
 	        var formFieldClasses = cx({
-	            'input_group':     true,
-	            'input_valid':     this.state.valid,
-	            'input_error':     !this.state.valid,
-	            'input_empty':     this.state.empty,
-	            'input_hasValue':  !this.state.empty,
-	            'input_focused':   this.state.focus,
+	            'input_group': true,
+	            'input_valid': this.state.valid,
+	            'input_error': !this.state.valid,
+	            'input_empty': this.state.empty,
+	            'input_hasValue': !this.state.empty,
+	            'input_focused': this.state.focus,
 	            'input_unfocused': !this.state.focus
 	        });
 
 	        var label;
-	        if(this.state.label){
-	            label= React.createElement("label", {className: "input_label", htmlFor: this.props.label}, 
+	        if (this.state.label) {
+	            label = React.createElement("label", {className: "input_label", htmlFor: this.props.label}, 
 	                React.createElement("span", {className: "label_text"}, this.props.label)
 	            )
 	        }
-	        var inputClass="field-input input field-"+this.state.type
+	        var inputClass = "field-input input field-" + this.state.type
 	        return (
 	            React.createElement("div", {className: formFieldClasses}, 
 	                label, 
@@ -485,24 +523,25 @@
 	                    this.props, 
 	                    {placeholder: this.props.placeholder, 
 	                    className: inputClass, 
-	                    id: this.props.text, 
+	                    id: this.props.label, 
 	                    defaultValue: this.props.defaultValue, 
 	                    value: this.state.value, 
 	                    onChange: this.handleChange, 
-	                    onFocus: this.handleFocus, 
+	                    onClick: this.handleFocus, 
 	                    onBlur: this.handleBlur, 
 	                    autoComplete: "off"})
-	                    ), 
+	                ), 
 	                React.createElement(FormValidator, {showValidator: this.state.showValidator, 
-	                               validateStatus: this.state.validateStatus, 
-	                               name: this.props.label, 
-	                               valid: this.state.isValid})
+	                    validateStatus: this.state.validateStatus, 
+	                    initial: this.state.initial, 
+	                    name: this.props.label, 
+	                    valid: this.state.valid})
 	            )
 	        )
 
 	    }
 	})
-	module.exports=FormField;
+	module.exports = FormField;
 
 /***/ },
 /* 8 */,
@@ -515,45 +554,75 @@
 	 * Created by navy on 15/4/2.
 	 */
 	var _ = __webpack_require__(3);
+	var $ = __webpack_require__(13);
 
-	function Validator(displayName, rules) {
+	function Validator(displayName, rules, id) {
 	    this.displayName = displayName;
 	    this.rules = rules;
+	    this.name = id;
 	    this.result = {};
 	}
 
 	Validator.prototype = {
 
-
 	    messageTemplate: {
 	        required: 'The {0} is Required',
-
+	        email: 'The {0} is a valid email address'
 	    },
 	    validate: function (value) {
 	        var self = this;
+	        var runner=[];
+
 	        _.each(self.rules, function (condition, rule) {
-	            self[rule](value, condition);
+	            function asyncValidate(condition,rule){
+	                var d=$.Deferred();
+	                self[rule](value, condition);
+	                d.resolve(true);
+	                return d.promise();
+	            }
+	            runner.push(asyncValidate(condition,rule))
 	        })
-
+	        $.when(runner).then(function () {
+	            return self.result;
+	        })
 	    },
-
 	    required: function (value, condition) {
 	        var key = 'required';
-
 	        this.result[key] = {
-	            valid: !_.isEmpty(value),
+	            valid: condition ? !_.isEmpty(value) : true,
 	            errorMessage: this.getTemplateMessage(key)
 	        }
-
 	    },
-	    getTemplateMessage: function (key) {
+	    email: function (value, condition) {
+	        var key = 'email';
+	        this.result[key] = {
+	            valid: condition ? /^\w+@[a-zA-Z_\d]+?\.[a-zA-Z]{2,3}$/.test(value) : true,
+	            errorMessage: this.getTemplateMessage(key)
+	        }
+	    },
+	    remote: function (value, condition) {
+	        var self = this;
+	        var key = 'remote';
+	        var data = {};
+	        data[self.name] = value;
+	        self.result[key] = {
+	            valid:false,
+	            errorMessage: 'remote checking'
+	        };
+	        $.post(condition.url, data, function (res) {
+	            self.result[key] = {
+	                valid: res,
+	                errorMessage: self.getTemplateMessage(key, condition.message)
+	            }
+	        })
+	    },
+	    getTemplateMessage: function (key, message) {
 	        var words = [].concat(this.displayName);
-	        var templateStr = this.messageTemplate[key];
+	        var templateStr = message || this.messageTemplate[key];
 	        var result = templateStr.replace(/\{(\d+)\}/g, function (match, token) {
 	            return words[token];
 	        });
 	        return result;
-
 	    }
 
 
@@ -564,12 +633,15 @@
 	    componentWillMount: function () {
 	        this.displayName = this.props.label;
 	        this.rules = this.props.validateRules;
+	        this.id = this.props.id;
 	        this.result = {};
+	        this.validator = new Validator(this.displayName,
+	            this.rules,
+	            this.id
+	        )
 	    },
 	    checkRules: function (value) {
-	        var validator = new Validator(this.displayName, this.rules)
-	        validator.validate(value);
-	        return validator.result;
+	        this.validator.validate(value);
 	    },
 
 	}
@@ -585,19 +657,15 @@
 
 	var React = __webpack_require__(1);
 	var _ = __webpack_require__(3);
-	var Icon = __webpack_require__(28);
+	var Icon = __webpack_require__(29);
 
 	var cx = React.addons.classSet;
 
 	var FormValidator = React.createClass({displayName: "FormValidator",
 
 	    getInitialState: function () {
-
-	        var valid = this.props.validateStatus ? _.every(_.map(this.props.validateStatus, function (item) {
-	            return item.valid;
-	        }), Boolean) : false;
 	        return {
-	            valid: valid,
+	            valid: this.props.valid,
 	            showValidator: this.props.showValidator
 	        };
 	    },
@@ -605,8 +673,8 @@
 
 	        var validatorClass = cx({
 	            'password_validator': true,
-	            'visible': this.state.showValidator,
-	            'invisible': !this.state.showValidator
+	            'visible': this.props.showValidator,
+	            'invisible': !this.props.showValidator
 	        });
 
 	        var validatorTitle;
@@ -636,20 +704,16 @@
 	                errorMessage: item.errorMessage
 	            });
 	        });
-
-
 	        return (
-
 	            React.createElement("div", {className: "validate"}, 
-	                React.createElement(ValidStatus, {name: this.props.name, visible: !this.state.showValidator&&!this.state.valid}), 
-
+	                React.createElement(ValidStatus, {name: this.props.name, visible: !this.props.initial && !this.props.showValidator && !this.props.valid}), 
 	                React.createElement("div", {className: validatorClass}, 
 	                    React.createElement("div", {className: "validator_container"}, 
 	                        validatorTitle, 
 	                        React.createElement("ul", {className: "rules_list"}, 
 	                            messages.map(function (item) {
 	                                return React.createElement(ValidateItem, {itemClass: item.itemClass, errorClass: item.errorClass, 
-	                                                     errorMessage: item.errorMessage})
+	                                    errorMessage: item.errorMessage})
 	                            })
 	                        )
 	                    )
@@ -665,8 +729,12 @@
 	    render: function () {
 	        return (
 	            React.createElement("li", {className: this.props.itemClass}, 
-	                React.createElement("i", {className: "icon_valid"}, " ", React.createElement(Icon, {type: "circle_tick_filled"}), " "), 
-	                React.createElement("i", {className: "icon_invalid"}, " ", React.createElement(Icon, {type: "circle_error"}), " "), 
+	                React.createElement("i", {className: "icon_valid"}, 
+	                    React.createElement(Icon, {type: "circle_tick_filled"})
+	                ), 
+	                React.createElement("i", {className: "icon_invalid"}, 
+	                    React.createElement(Icon, {type: "circle_error"})
+	                ), 
 	                React.createElement("span", {className: this.props.errorClass}, this.props.errorMessage)
 	            )
 	        )
@@ -678,7 +746,7 @@
 
 	    getInitialState: function () {
 	        return {
-	            message: this.props.name + 'is invalid'
+	            message: this.props.name + ' is invalid'
 	        };
 	    },
 
@@ -689,9 +757,25 @@
 	            'invisible': !this.props.visible
 	        });
 
+	        var errorIconClass=cx({
+	            'validationIcons':true,
+	            'visible': this.props.visible,
+	            'invisible': !this.props.visible
+	        })
+
 	        return (
-	            React.createElement("div", {className: errorClass}, 
-	                React.createElement("span", null, this.props.errorMessage)
+	            React.createElement("div", null, 
+	                React.createElement("div", {className: errorClass}, 
+	                    React.createElement("span", null, this.state.message)
+	                ), 
+	                React.createElement("div", {className: errorIconClass}, 
+	                    React.createElement("i", {className: "input_error_icon"}, 
+	                        React.createElement(Icon, {type: "circle_error"})
+	                    ), 
+	                    React.createElement("i", {className: "input_valid_icon"}, 
+	                        React.createElement(Icon, {type: "circle_tick"})
+	                    )
+	                )
 	            )
 	        )
 	    }
@@ -703,7 +787,12 @@
 
 
 /***/ },
-/* 13 */,
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = jQuery;
+
+/***/ },
 /* 14 */,
 /* 15 */,
 /* 16 */,
@@ -718,7 +807,8 @@
 /* 25 */,
 /* 26 */,
 /* 27 */,
-/* 28 */
+/* 28 */,
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/** @jsx React.DOM */
@@ -775,7 +865,7 @@
 
 
 /***/ },
-/* 29 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function() {

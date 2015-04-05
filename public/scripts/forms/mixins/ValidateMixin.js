@@ -33,6 +33,7 @@ Validator.prototype = {
         $.when(runner).then(function () {
             return self.result;
         })
+
     },
     required: function (value, condition) {
         var key = 'required';

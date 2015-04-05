@@ -13,6 +13,7 @@ var Form = React.createClass({
             url: this.props.url,
             submiting: false
         }
+
     },
     onSubmit: function (e) {
         e.preventDefault();

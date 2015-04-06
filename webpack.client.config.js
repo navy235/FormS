@@ -10,6 +10,7 @@ var config={
     context: path.join(__dirname, 'public'),
     entry:{
         'client':'./scripts/myform'
+        //'client':'./scripts/main'
     },
     output: {
         path: path.join(__dirname, '/public/build/'),
@@ -20,7 +21,8 @@ var config={
     externals:{
         'react/addons':'React',
         lodash:'_',
-        jquery:'jQuery'
+        jquery:'jQuery',
+        async:'async'
     },
     module: {
         loaders: [

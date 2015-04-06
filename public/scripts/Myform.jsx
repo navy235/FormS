@@ -6,7 +6,7 @@ var Form = require('./forms/Form');
 require('../styles/application.less');
 var formfields = [
     {
-        id: 'email',
+        name: 'email',
         type: 'email',
         label: 'Email Address',
         validateRules: {
@@ -15,12 +15,12 @@ var formfields = [
             remote:{
                 url:'users',
                 minLength:6,
-                message:'This {0} is registered,please try another one!'
+                message:'This {0} is unregistered!'
             }
         }
     },
     {
-        id: 'name',
+        name: 'name',
         type: 'text',
         label: 'Name',
         validateRules: {
@@ -28,14 +28,26 @@ var formfields = [
         }
     },
     {
-        id: 'password',
+        name: 'password',
         type: 'password',
         label: 'Password',
         validateRules: {
             required: true
         }
 
-    }]
+    },
+    {
+        name: 'passwordconfim',
+        type: 'password',
+        label: 'Confirm password',
+        validateRules: {
+            required: true,
+            equalto:{
+                compare:'password'
+            }
+        }
+    },
+]
 React.render(
     <div className="container">
         <Form formfields={formfields}

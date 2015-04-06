@@ -4,11 +4,8 @@
 var _ = require('lodash');
 var $ = require('jquery');
 
-function Validator(displayName, rules, id) {
-    this.displayName = displayName;
-    this.rules = rules;
-    this.name = id;
-    this.result = {};
+var Validator = function () {
+
 }
 
 Validator.prototype = {
@@ -22,6 +19,9 @@ Validator.prototype = {
         },
         remote: {
             async: true
+        },
+        equalto: {
+            message: 'The {0} equal to {1}'
         }
     },
     isAsyncValidate: function (rule) {
@@ -38,6 +38,7 @@ Validator.prototype = {
                 d.resolve(true);
                 return d.promise();
             }
+
             if (self.isAsyncValidate(rule)) {
                 runner.push(self[rule](value, condition))
             } else {
@@ -65,12 +66,22 @@ Validator.prototype = {
             errorMessage: this.getTemplateMessage(key)
         }
     },
+    equalto: function (value, condition) {
+        var key = 'equalto';
+        var form = this.field.getFormRef();
+        var equalElemnt = form[condition['compare']];
+        this.result[key] = {
+            valid: equalElemnt.getValue() == value,
+            errorMessage: this.getTemplateMessage(key, null, [equalElemnt.getDisplayName()])
+        }
+    },
     remote: function (value, condition) {
         var self = this;
         var d = $.Deferred();
         var key = 'remote';
         var data = {};
-        data[self.name] = value;
+        var fieldName = this.field.getFieldName();
+        data[fieldName] = value;
         var othervalid = _.every(_.map(self.result, function (item, name) {
             if (name == key) {
                 return true;
@@ -80,7 +91,7 @@ Validator.prototype = {
         }), Boolean);
         self.result[key] = {
             valid: false,
-            errorMessage: 'remote checking'
+            errorMessage: 'Loading for checking'
         };
         if (othervalid) {
             $.post(condition.url, data, function (res) {
@@ -90,13 +101,17 @@ Validator.prototype = {
                 }
                 d.resolve(res);
             });
-        }else{
+        } else {
             d.resolve(false);
         }
         return d.promise();
     },
-    getTemplateMessage: function (key, message) {
-        var words = [].concat(this.displayName);
+    getTemplateMessage: function (key, message, otherwords) {
+        var displayName = this.field.getDisplayName();
+        var words = [].concat(displayName);
+        if (otherwords) {
+            words = words.concat(otherwords);
+        }
         var templateStr = message || this.rulesSetting[key].message;
         var result = templateStr.replace(/\{(\d+)\}/g, function (match, token) {
             return words[token];
@@ -104,20 +119,15 @@ Validator.prototype = {
         return result;
     }
 
-
 };
 
 var ValidatorMixin = {
 
     componentWillMount: function () {
-        this.displayName = this.props.label;
-        this.rules = this.props.validateRules;
-        this.id = this.props.id;
-        this.result = {};
-        this.validator = new Validator(this.displayName,
-            this.rules,
-            this.id
-        )
+        this.validator = new Validator();
+        this.validator.field = this;
+        this.validator.rules = this.getValidateRules();
+        this.validator.result = {};
     },
     checkRules: function (value, callback) {
         this.validator.validate(value, callback);

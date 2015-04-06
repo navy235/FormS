@@ -4,6 +4,7 @@
 var React = require('react/addons');
 var _ = require('lodash');
 var FormField = require('./FormField');
+var async = require('async');
 
 var Form = React.createClass({
 
@@ -13,52 +14,61 @@ var Form = React.createClass({
             url: this.props.url,
             submiting: false
         }
-
-
     },
     onSubmit: function (e) {
         e.preventDefault();
-        var valid=this.isValid();
-        var data=this.getData();
-        if (valid) {
-            console.log(data);
-            this.reset();
-        }
+        this.isValid(function (valid) {
+            if(valid){
+                var data = this.getData();
+                if(this.props.onFormSubmit){
+                    this.props.onFormSubmit(data);
+                }
+                console.log(data);
+                this.reset();
+            }
+        }.bind(this));
     },
     reset: function () {
         var self = this;
         _.each(this.state.formfields, function (field) {
-            self.refs[field.id].reset();
+            self.refs[field.name].reset();
         })
     },
-    isValid: function () {
+    isValid: function (cb) {
         var self = this;
-        var valid = _.every(_.map(this.state.formfields, function (field) {
-            return self.refs[field.id].isValid();
-        }), Boolean);
-        return valid;
+        async.map(this.state.formfields, function (field,callback) {
+            self.refs[field.name].isValid(callback)
+        }, function (err, results) {
+            var valid=_.every(results,Boolean);
+            cb(valid)
+        });
     },
     getData: function () {
         var self = this;
         var data = {};
         _.map(this.state.formfields, function (field) {
-            data[field.id] = self.refs[field.id].getValue();
+            data[field.name] = self.refs[field.name].getValue();
         });
         return data;
     },
+    getFormRef:function(){
+       return this.refs;
+    },
     render: function () {
         var fields = [];
+        var self=this;
         return (
             <form url={this.props.url} onSubmit={this.onSubmit}>
                 {this.state.formfields.map(function (field, i) {
                     return <FormField
                         type={field.type}
-                        id={field.id}
+                        name={field.name}
                         placeholder={field.placeholder}
                         label={field.label}
-                        ref={field.id}
+                        ref={field.name}
                         validateRules={field.validateRules}
                         key={i}
+                        getFormRef={self.getFormRef}
                     />
                 })}
 
@@ -70,7 +80,6 @@ var Form = React.createClass({
 
             </form>
         );
-
     }
 })
 module.exports = Form;

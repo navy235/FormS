@@ -3,6 +3,7 @@
  */
 var React = require('react/addons');
 var _ = require('lodash');
+var async = require('async');
 var cx = React.addons.classSet;
 var ValidateMixin = require('./mixins/ValidateMixin');
 var FormValidator = require('./FormValidator');
@@ -13,7 +14,7 @@ var FormField = React.createClass({
 
     getInitialState: function () {
         return {
-            id: this.props.id,
+            name: this.props.name,
             type: this.props.type,
             focus: false,
             empty: _.isEmpty(this.props.value),
@@ -26,53 +27,80 @@ var FormField = React.createClass({
             valid: false
         }
     },
+    componentWillReceiveProps: function (newProps) {
+        // perform update only when new value exists and not empty
+        if (newProps.value) {
+            if (!_.isUndefined(newProps.value) && newProps.value.length > 0) {
+                this.setState({
+                    value: newProps.value,
+                    empty: _.isEmpty(newProps.value)
+                });
+            }
+        }
+    },
     handleChange: function (event) {
         this.setState({
             value: event.target.value,
             empty: _.isEmpty(event.target.value)
+        }, function () {
+            // call onChange method on the parent component for updating it's state
+            if (this.props.onChange) {
+                this.props.onChange(event);
+            }
+            this.isValid();
         });
-
-        // call onChange method on the parent component for updating it's state
-        if (this.props.onChange) {
-            this.props.onChange(event);
-        }
-        this.isValid();
+    },
+    getDisplayName: function () {
+        var displayName = this.props.label || this.props.name;
+        return displayName;
+    },
+    getFieldName:function(){
+        return this.props.name;
     },
     getValue: function () {
         return this.state.value;
+    },
+    getFormRef: function () {
+        return this.props.getFormRef();
+    },
+    getValidateRules:function(){
+        return this.props.validateRules;
     },
     reset: function () {
         this.setState({
             focus: false,
             initial: true,
             value: null,
-            empty:true,
+            empty: true,
             validateStatus: [],
             showValidator: false,
             valid: false
         })
     },
-    isValid: function () {
+    isValid: function (callback) {
         if (this.props.validateRules) {
-            this.checkRules(this.state.value,function(result){
+            this.checkRules(this.state.value, function (result) {
                 var valid = _.every(_.map(result, function (item) {
                     return item.valid;
                 }), Boolean);
                 this.setState({
                     validateStatus: result,
                     valid: valid,
-                    initial:false
+                    initial: false
                 });
-                return valid;
+                if (callback) {
+                    callback(null, valid);
+                }
             }.bind(this));
         }
-        return true;
     },
     handleFocus: function (event) {
         this.setState({
             focus: true,
             showValidator: true,
             initial: false
+        }, function () {
+            this.isValid();
         });
         this.isValid();
     },
@@ -81,8 +109,9 @@ var FormField = React.createClass({
         this.setState({
             focus: false,
             showValidator: false
+        }, function () {
+            this.isValid();
         });
-        this.isValid();
     },
 
     render: function () {
@@ -99,7 +128,7 @@ var FormField = React.createClass({
 
         var label;
         if (this.state.label) {
-            label = <label className="input_label" htmlFor={this.props.label}>
+            label = <label className="input_label" htmlFor={this.props.name}>
                 <span className="label_text">{this.props.label}</span>
             </label>
         }
@@ -111,7 +140,8 @@ var FormField = React.createClass({
                     {...this.props}
                     placeholder={this.props.placeholder}
                     className={inputClass}
-                    id={this.props.label}
+                    id={this.props.name}
+                    name={this.props.name}
                     defaultValue={this.props.defaultValue}
                     value={this.state.value}
                     onChange={this.handleChange}
